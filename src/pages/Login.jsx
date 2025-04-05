@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../assets/styles/login.css";
-import Logo from '../assets/images/logo.png'; // Import your logo
+import Logo from '../assets/images/logo.png';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -23,7 +23,24 @@ function Login() {
 
       if (response.ok) {
         const data = await response.json();
-        navigate('/employee');
+
+        // Example role-based routing (if available)
+        switch (data.role) {
+          case 'employee':
+            navigate('/dashboard/employee');
+            break;
+          case 'employer':
+            navigate('/dashboard/employer');
+            break;
+          case 'bank':
+            navigate('/dashboard/bank');
+            break;
+          case 'admin':
+            navigate('/dashboard/admin');
+            break;
+          default:
+            setError('Unknown role.');
+        }
       } else {
         setError('Invalid credentials, please try again.');
       }
@@ -33,22 +50,9 @@ function Login() {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100vw',
-        height: '100vh',
-        background: 'linear-gradient(to bottom right, #6A9C89, #ACB6E5)', // gradient here
-
-        position: 'fixed',
-        top: 0,
-        left: 0,
-      }}
-    >
+    <div className="login-container">
       <div className="login-card">
-        <img src={Logo} alt="Logo" className="login-logo" /> {/* Logo here */}
+        <img src={Logo} alt="Logo" className="login-logo" />
         <h2 className="login-title">Carbon Credit Bank</h2>
         {error && <p className="error">{error}</p>}
         <form onSubmit={handleSubmit}>

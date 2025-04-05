@@ -1,0 +1,7 @@
+.page-container {
+    min-height: calc(100vh - 70px); /* adjust for navbar height */
+    background: linear-gradient(to bottom right, #d6f2db, #f0fdf4);
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+  
