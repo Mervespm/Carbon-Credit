@@ -26,8 +26,5 @@ const carbon_credit_schema = mongoose.Schema(
   }
 );
 
-const carbon_credit = mongoose.model(
-  "Carbon Credits",
-  carbon_credit_schemaSchema
-);
+const carbon_credit = mongoose.model("Carbon Credits", carbon_credit_schema);
 export default carbon_credit;
