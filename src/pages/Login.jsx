@@ -24,7 +24,6 @@ function Login() {
       if (response.ok) {
         const data = await response.json();
 
-        // Example role-based routing (if available)
         switch (data.role) {
           case 'employee':
             navigate('/dashboard/employee');

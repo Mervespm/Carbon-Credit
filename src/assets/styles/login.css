@@ -25,7 +25,7 @@
   text-align: center;
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
-  color: #18230F;
+  color: var(--green-dark);
 }
 
 .form-group {
@@ -36,7 +36,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-size: 1rem;
-  color: #27391C;
+  color: var(--green-deep);
 }
 
 .form-group input {

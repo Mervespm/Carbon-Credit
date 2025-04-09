@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../assets/styles/home.css'; // New CSS file we'll create
+import '../assets/styles/home.css';
 
 function Home() {
   return (
