@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import "../assets/styles/login.css";
-import Logo from '../assets/images/logo.png';
+import Logo from "../assets/images/logo.png";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const loginUrl = 'https://domain.com/api/login';
+    const loginUrl = "https://localhost:8080/api/login";
 
     try {
       const response = await fetch(loginUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
@@ -26,26 +26,26 @@ function Login() {
 
         // Example role-based routing (if available)
         switch (data.role) {
-          case 'employee':
-            navigate('/dashboard/employee');
+          case "employee":
+            navigate("/dashboard/employee");
             break;
-          case 'employer':
-            navigate('/dashboard/employer');
+          case "employer":
+            navigate("/dashboard/employer");
             break;
-          case 'bank':
-            navigate('/dashboard/bank');
+          case "bank":
+            navigate("/dashboard/bank");
             break;
-          case 'admin':
-            navigate('/dashboard/admin');
+          case "admin":
+            navigate("/dashboard/admin");
             break;
           default:
-            setError('Unknown role.');
+            setError("Unknown role.");
         }
       } else {
-        setError('Invalid credentials, please try again.');
+        setError("Invalid credentials, please try again.");
       }
     } catch (err) {
-      setError('An error occurred, please try again.');
+      setError("An error occurred, please try again.");
     }
   };
 
@@ -78,7 +78,9 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="login-btn">
+            Login
+          </button>
 
           <p className="register-text">
             Don't have an account? <Link to="/register">Register</Link>
