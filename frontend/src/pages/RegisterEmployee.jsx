@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/register.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegisterEmployee = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    address: '',
-    employerCode: ''
+    user_type: 'employee',
   });
 
   const [error, setError] = useState('');
@@ -25,45 +27,55 @@ const RegisterEmployee = () => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords don’t match.');
+      setError('Passwords do not match.');
       return;
     }
 
     try {
-      const res = await fetch('https://domain.com/api/register/employee', {
+      const res = await fetch('http://localhost:8080/api/createAccount', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: form.name,
+          first_name: form.first_name,
+          last_name: form.last_name,
           email: form.email,
           password: form.password,
-          address: form.address,
-          employerCode: form.employerCode
-        })
+          user_type: form.user_type,
+        }),
       });
 
       if (res.ok) {
-        navigate('/login');
+        toast.success('Account created! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 2000);
       } else {
-        setError('Something went wrong. Please try again.');
+        const data = await res.json();
+        setError(data.message || 'Registration failed.');
       }
     } catch (err) {
-      setError('Could not connect to server.');
+      setError('Server error. Please try again.');
     }
   };
 
   return (
     <div className="register-container">
       <form className="register-card" onSubmit={handleSubmit}>
-        <h2>Register as Employee</h2>
-
+        <h2>Create Your Account</h2>
         {error && <p className="error">{error}</p>}
 
         <input
           type="text"
-          name="name"
-          placeholder="Full Name"
-          value={form.name}
+          name="first_name"
+          placeholder="First Name"
+          value={form.first_name}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="text"
+          name="last_name"
+          placeholder="Last Name"
+          value={form.last_name}
           onChange={handleChange}
           required
         />
@@ -95,26 +107,10 @@ const RegisterEmployee = () => {
           required
         />
 
-        <input
-          type="text"
-          name="address"
-          placeholder="Home Address"
-          value={form.address}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="employerCode"
-          placeholder="Employer Code"
-          value={form.employerCode}
-          onChange={handleChange}
-          required
-        />
-
         <button type="submit">Register</button>
       </form>
+
+      <ToastContainer position="top-center" autoClose={2000} />
     </div>
   );
 };
