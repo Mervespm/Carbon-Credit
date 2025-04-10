@@ -12,7 +12,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const loginUrl = 'https://domain.com/api/login';
+    const loginUrl = 'http://localhost:8080/api/login';
 
     try {
       const response = await fetch(loginUrl, {

@@ -4,7 +4,7 @@ import '../assets/styles/register.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const RegisterEmployee = () => {
+const RegisterEmployer = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -13,8 +13,8 @@ const RegisterEmployee = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    user_type: 'employee',
-    company_id: ''
+    user_type: 'employer',
+    company_name: ''
   });
 
   const [error, setError] = useState('');
@@ -42,12 +42,12 @@ const RegisterEmployee = () => {
           email: form.email,
           password: form.password,
           user_type: form.user_type,
-          company_id: form.company_id
+          company_name: form.company_name
         })
       });
 
       if (res.ok) {
-        toast.success('Account created! Redirecting to login...');
+        toast.success('Employer registered! Redirecting to login...');
         setTimeout(() => navigate('/login'), 2000);
       } else {
         const data = await res.json();
@@ -61,7 +61,7 @@ const RegisterEmployee = () => {
   return (
     <div className="register-container">
       <form className="register-card" onSubmit={handleSubmit}>
-        <h2>Create Your Account</h2>
+        <h2>Register as Employer</h2>
         {error && <p className="error">{error}</p>}
 
         <input
@@ -111,9 +111,9 @@ const RegisterEmployee = () => {
 
         <input
           type="text"
-          name="company_id"
-          placeholder="Company ID"
-          value={form.company_id}
+          name="company_name"
+          placeholder="Company Name"
+          value={form.company_name}
           onChange={handleChange}
           required
         />
@@ -126,4 +126,4 @@ const RegisterEmployee = () => {
   );
 };
 
-export default RegisterEmployee;
+export default RegisterEmployer;
