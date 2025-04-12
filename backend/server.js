@@ -1,9 +1,12 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 const app = express();
 import run from "./mongoCommands.js";
 import Account from "./model/account.model.js";
 import carbon_credit from "./model/carbon_credit.model.js";
 import mongoose from "mongoose";
+import "dotenv/config";
+
 /* API Requests
 
 Create an account (POST)
@@ -26,7 +29,19 @@ User deletes their account (DELETE)
 
 Carbon credit submission type (POST)
 
+Get impending employer registration data for carbon credit bank dashboard (GET)
 
+Carbon credit bank approves or denies employer registration (POST)
+
+Login method needs to verify whether the user is approved. (POST)
+
+Get the employer unique id to give to employees (GET)
+
+Get employees analytic data (GET)
+
+
+
+QOL: 
 */
 
 run().catch(console.dir);
@@ -43,12 +58,17 @@ app.get("/", (req, res) => {
 // Login request will fail if credentials given do not exist in db.
 app.post("/api/login", async (req, res) => {
   try {
-    const record = await Account.find({
+    const record = await Account.findOne({
       email: req.body.email,
       password: req.body.password,
     });
-    console.log(record);
-    res.status(200).json(record);
+    console.log(record._id.toString());
+    const token = jwt.sign(
+      record._id.toString(),
+      process.env.ACCESS_TOKEN_HASH
+    );
+
+    res.status(200).json({ token: token });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -56,9 +76,10 @@ app.post("/api/login", async (req, res) => {
 
 // Create account request will fail if email already exists in db.
 app.post("/api/createAccount", async (req, res) => {
-  console.log(req.body);
   try {
-    const account_record = await Account.find({ email: req.body.email }).exec();
+    const account_record = await Account.findOne({
+      email: req.body.email,
+    }).exec();
 
     if (account_record) {
       res.status(500).json({ message: "Email already exists in database" });
@@ -74,12 +95,25 @@ app.post("/api/createAccount", async (req, res) => {
 });
 
 app.get("/api/dashboard", async (req, res) => {
-  try {
-    const dashboard_data = await Account.find({ id: req.body.id }).exec();
+  if (req.body.user_role == "employee") {
+    try {
+      const dashboard_data = await Account.find({ id: req.body.id }).exec();
 
-    res.status(200).json(dashboard_data);
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-    console.log(e.message);
+      res.status(200).json(dashboard_data);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+      console.log(e.message);
+    }
+  }
+
+  if (req.body.user_role == "employer") {
+    try {
+      const dashboard_data = await Account.find({ id: req.body.id }).exec();
+
+      res.status(200).json(dashboard_data);
+    } catch (e) {
+      res.status(500).json({ message: e.message });
+      console.log(e.message);
+    }
   }
 });
