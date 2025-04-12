@@ -2,10 +2,12 @@ import express from "express";
 import jwt from "jsonwebtoken";
 const app = express();
 import run from "./mongoCommands.js";
+import verifyUser from "./jwt.js";
 import Account from "./model/account.model.js";
 import carbon_credit from "./model/carbon_credit.model.js";
 import mongoose from "mongoose";
 import "dotenv/config";
+import cors from "cors";
 
 /* API Requests
 
@@ -47,6 +49,7 @@ QOL:
 run().catch(console.dir);
 
 app.use(express.json());
+app.use(cors());
 
 app.listen(8080, () => {
   console.log("Server started on port 8080");
@@ -56,26 +59,30 @@ app.get("/", (req, res) => {
 });
 
 // Login request will fail if credentials given do not exist in db.
-app.post("/api/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const record = await Account.findOne({
       email: req.body.email,
       password: req.body.password,
     });
-    console.log(record._id.toString());
-    const token = jwt.sign(
-      record._id.toString(),
-      process.env.ACCESS_TOKEN_HASH
-    );
+    if (record) {
+      const id = record._id;
+      console.log(`User id: ${id}`);
+      const token = jwt.sign({ user_id: id }, process.env.ACCESS_TOKEN_HASH);
+      console.log(`Login Token: ${token}`);
 
-    res.status(200).json({ token: token });
+      res.status(200).json({ token: token });
+    } else {
+      res.status(401).json({ message: "Invalid login credentials" });
+    }
   } catch (error) {
+    console.log(`Error: ${error}`);
     res.status(500).json(error);
   }
 });
 
 // Create account request will fail if email already exists in db.
-app.post("/api/createAccount", async (req, res) => {
+app.post("/createAccount", async (req, res) => {
   try {
     const account_record = await Account.findOne({
       email: req.body.email,
@@ -86,7 +93,6 @@ app.post("/api/createAccount", async (req, res) => {
     }
 
     const account = await Account.create(req.body);
-
     console.log(account);
     res.status(200).json(account);
   } catch (error) {
@@ -94,26 +100,24 @@ app.post("/api/createAccount", async (req, res) => {
   }
 });
 
-app.get("/api/dashboard", async (req, res) => {
-  if (req.body.user_role == "employee") {
-    try {
-      const dashboard_data = await Account.find({ id: req.body.id }).exec();
+// Verifies if the user is logged in with JWT and then searches for their record in the DB.
+app.get("/dashboard", verifyUser, async (req, res) => {
+  try {
+    console.log(`Decoded token: ${JSON.stringify(req.decoded_token)}`);
 
-      res.status(200).json(dashboard_data);
-    } catch (e) {
-      res.status(500).json({ message: e.message });
-      console.log(e.message);
+    const user_account = await Account.findOne({
+      _id: new mongoose.Types.ObjectId(req.decoded_token.user_id),
+    });
+    if (user_account) {
+      console.log(`Account Data: ${user_account}`);
+      res.status(200).json({
+        message:
+          "User verified and exists in database (Retrieve user data next)",
+      });
+    } else {
+      res.status(401).json({ message: "User does not exist" });
     }
-  }
-
-  if (req.body.user_role == "employer") {
-    try {
-      const dashboard_data = await Account.find({ id: req.body.id }).exec();
-
-      res.status(200).json(dashboard_data);
-    } catch (e) {
-      res.status(500).json({ message: e.message });
-      console.log(e.message);
-    }
+  } catch (error) {
+    res.status(402).json({ message: error });
   }
 });
