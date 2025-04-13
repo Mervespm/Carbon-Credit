@@ -20,8 +20,11 @@ const accountSchema = mongoose.Schema(
     },
     user_type: {
       type: String,
-      required: [false, "All users must have a type"],
-      default: "customer",
+      required: [false],
+    },
+    cookie: {
+      type: String,
+      required: [false],
     },
     carbon_credits: {
       type: mongoose.SchemaTypes.ObjectId,
