@@ -1,5 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 const data = [
   { month: 'Jan', credits: 12 },
@@ -9,6 +10,12 @@ const data = [
 ];
 
 const EmployeeDashboard = () => {
+  const navigate = useNavigate();
+
+  const handleAddTrip = () => {
+    navigate('/trip');
+  };
+
   return (
     <div className="dashboard-container">
       <h2>Your Carbon Credit Dashboard</h2>
@@ -24,6 +31,10 @@ const EmployeeDashboard = () => {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      <button onClick={handleAddTrip} style={{ marginTop: '3rem', padding: '20px 30px', backgroundColor: '#1F7D53', color: 'white', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>
+        + Add Trip
+      </button>
     </div>
   );
 };
