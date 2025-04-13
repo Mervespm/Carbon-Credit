@@ -10,7 +10,6 @@ const TripLogger = () => {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  // Timer formatting
   const formatTimer = (ms) => {
     const m = Math.floor(ms / 60000);
     const s = Math.floor((ms % 60000) / 1000);
@@ -18,7 +17,6 @@ const TripLogger = () => {
     return `${m}m ${s}s ${msPart}ms`;
   };
 
-  // Timer updater
   useEffect(() => {
     if (!timerId) return;
     const interval = setInterval(() => {
@@ -37,14 +35,14 @@ const TripLogger = () => {
       },
       (err) => {
         console.error(err);
-        setMessage('⚠️ Please allow location access.');
+        setMessage('Please allow location access.');
       }
     );
   };
 
   const handleStart = () => {
     if (!transportType) {
-      setMessage("🚦 Please select a transport type first.");
+      setMessage("Please select a transport type first.");
       return;
     }
 
@@ -52,7 +50,7 @@ const TripLogger = () => {
     setElapsed(0);
     setSubmitted(false);
     setTimerId(Date.now());
-    setMessage("📍 Trip started. Timer is running...");
+    setMessage("Trip started. Timer is running...");
   };
 
   const handleEnd = async () => {
@@ -85,13 +83,13 @@ const TripLogger = () => {
       if (res.ok) {
         setCredits(data.trip.creditsEarned);
         setSubmitted(true);
-        setMessage("✅ Trip saved!");
+        setMessage("Trip saved!");
       } else {
-        setMessage(data.message || "❌ Submission failed.");
+        setMessage(data.message || "Submission failed.");
       }
     } catch (err) {
       console.error(err);
-      setMessage("❌ Server error.");
+      setMessage("Server error.");
     }
   };
 
