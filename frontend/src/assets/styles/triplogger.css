@@ -1,53 +1,72 @@
 .trip-logger {
-  max-width: 500px;
-  margin: 2rem auto;
-  background-color: #f0fdf4;
+  background-color: #ffffff;
   padding: 2rem;
   border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  font-family: "Inter", sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 5vh auto;
+  font-family: 'Inter', sans-serif;
 }
 
 .trip-logger h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.trip-logger select,
-.trip-logger button {
-  font-size: 1rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  margin-top: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green-deep);
   margin-bottom: 1rem;
-  width: 100%;
-  border: 1px solid #ccc;
-}
-
-.trip-logger button {
-  background-color: #1f7d53;
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.trip-logger button:hover {
-  background-color: #166442;
+  text-align: center;
 }
 
 .trip-logger p {
   font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  color: #333;
   text-align: center;
 }
 
-.trip-logger .timer {
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: #256029;
+.trip-summary {
+  background-color: #f6fff9;
+  border: 1px solid #c4f0d9;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 2rem;
   text-align: center;
-  margin: 1rem 0;
+  font-size: 1rem;
+  color: var(--green-dark);
+}
+
+.trip-summary strong {
+  font-size: 1.2rem;
+}
+
+.trip-logger select,
+.trip-logger button {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.trip-logger button {
+  background-color: var(--green-accent);
+  color: white;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.trip-logger button:hover {
+  background-color: var(--green-base);
+}
+
+.trip-logger .disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.trip-history-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }

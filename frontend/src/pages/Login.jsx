@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import "../assets/styles/login.css";
+import '../assets/styles/login.css'; // your custom CSS
 import Logo from '../assets/images/logo.png';
 
 function Login() {
@@ -12,79 +12,76 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const loginUrl = 'http://localhost:8080/api/login';
-
     try {
-      const response = await fetch(loginUrl, {
+      const res = await fetch('http://localhost:8080/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (res.ok) {
+        const data = await res.json();
 
-        switch (data.role) {
-          case 'employee':
-            navigate('/dashboard/employee');
-            break;
-          case 'employer':
-            navigate('/dashboard/employer');
-            break;
-          case 'bank':
-            navigate('/dashboard/bank');
-            break;
-          case 'admin':
-            navigate('/dashboard/admin');
-            break;
-          default:
-            setError('Unknown role.');
+        if (data.message === "Account not approved yet") {
+          setError("Your account is awaiting approval.");
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+
+        switch (data.user.role) {
+          case 'employee': navigate('/dashboard/employee'); break;
+          case 'employer': navigate('/dashboard/employer'); break;
+          case 'bank': navigate('/dashboard/bank'); break;
+          default: setError('Unknown role.'); break;
         }
       } else {
         setError('Invalid credentials, please try again.');
       }
     } catch (err) {
-      setError('An error occurred, please try again.');
+      setError('Server error. Please try again.');
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <img src={Logo} alt="Logo" className="login-logo" />
-        <h2 className="login-title">Carbon Credit Bank</h2>
-        {error && <p className="error">{error}</p>}
+    <div className="container-fluid login-container d-flex justify-content-center align-items-center">
+      <div className="login-card shadow p-4">
+        <img src={Logo} alt="Logo" className="login-logo mb-4" />
+        <h2 className="login-title mb-4">Carbon Credit Bank</h2>
+        {error && <div className="alert alert-danger text-center">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email:</label>
+            <label>Email address</label>
             <input
               type="email"
-              id="email"
+              className="form-control"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password:</label>
+            <label>Password</label>
             <input
               type="password"
-              id="password"
+              className="form-control"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
               required
             />
           </div>
 
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="btn btn-block login-btn mt-3">Login</button>
 
-          <p className="register-text">
-            Don't have an account? <br />
+          <p className="register-text mt-4">
+            Don’t have an account? <br />
             <Link to="/register/employee">Register as Employee</Link> |{' '}
             <Link to="/register/employer">Register as Employer</Link>
           </p>
-
         </form>
       </div>
     </div>

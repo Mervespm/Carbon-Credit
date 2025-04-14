@@ -1,40 +1,79 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import '../assets/styles/triplogger.css';
 
-const data = [
-  { month: 'Jan', credits: 12 },
-  { month: 'Feb', credits: 18 },
-  { month: 'Mar', credits: 22 },
-  { month: 'Apr', credits: 15 },
-];
+
+const COLORS = ['#1F7D53', '#FF8C00', '#8884d8', '#00C49F'];
 
 const EmployeeDashboard = () => {
-  const navigate = useNavigate();
+  const [trips, setTrips] = useState([]);
+  const [totalCredits, setTotalCredits] = useState(0);
 
-  const handleAddTrip = () => {
-    navigate('/trip');
-  };
+  useEffect(() => {
+    const fetchTrips = async () => {
+      const token = localStorage.getItem("token");
+      const res = await fetch('http://localhost:8080/api/my-trips', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTrips(data.trips);
+        setTotalCredits(data.totalCredits);
+      }
+    };
+    fetchTrips();
+  }, []);
+
+  const creditData = trips.reduce((acc, trip) => {
+    const type = trip.transportationType;
+    const credits = trip.creditsEarned || 0;
+    acc[type] = (acc[type] || 0) + credits;
+    return acc;
+  }, {});
+
+  const chartData = Object.entries(creditData).map(([type, credits]) => ({
+    name: type,
+    value: Number(credits.toFixed(2))
+  }));
 
   return (
-    <div className="dashboard-container">
-      <h2>Your Carbon Credit Dashboard</h2>
+    <div className="container mt-5">
+      <h2 className="mb-3">Welcome to Your Dashboard</h2>
+      <p>Total Carbon Credits: <strong>{totalCredits.toFixed(2)}</strong></p>
 
-      <div style={{ width: '100%', height: 450 }}>
+      <h4 className="mt-4">Carbon Credit Distribution</h4>
+      <div className="mb-4" style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis label={{ value: 'Credits', angle: -90, position: 'insideLeft' }} />
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
             <Tooltip />
-            <Line type="monotone" dataKey="credits" stroke="#1F7D53" strokeWidth={2} />
-          </LineChart>
+          </PieChart>
         </ResponsiveContainer>
       </div>
 
-      <button onClick={handleAddTrip} style={{ marginTop: '3rem', padding: '20px 30px', backgroundColor: '#1F7D53', color: 'white', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>
-        + Add Trip
-      </button>
+      <h4 className="mt-4">Trip History</h4>
+      <div className="trip-history-scroll">
+        <ul className="list-group">
+          {trips.map((trip, index) => (
+            <li key={index} className="list-group-item">
+              <strong>{trip.transportationType}</strong> | {new Date(trip.createdAt).toLocaleString()}<br />
+              Credits: {trip.creditsEarned.toFixed(2)}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
