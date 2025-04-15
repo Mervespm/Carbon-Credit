@@ -115,26 +115,33 @@ app.post("/createAccount", async (req, res) => {
   }
 });
 
-// Verifies if the user is logged in with JWT and then searches for their record in the DB.
+// Gets the user's carbon credit data
 app.get("/dashboard", verifyUser, async (req, res) => {
   try {
-    //TODO: Retrieve user's carbon credit data from database
     req.user_account.carbon_credits;
+    const role = req.user_account.user_type;
 
-    const carbon_credit_records = await carbon_credit
-      .find()
-      .where("_id")
-      .in(req.user_account.carbon_credits);
+    if (role == "employee") {
+      const carbon_credit_records = await carbon_credit
+        .find()
+        .where("_id")
+        .in(req.user_account.carbon_credits);
 
-    console.log(`Carbon credit records: ${carbon_credit_records}`);
+      console.log(`Carbon credit records: ${carbon_credit_records}`);
 
-    res.status(200).json({ msg: carbon_credit_records });
+      res.status(200).json({ msg: carbon_credit_records });
+    } else if (role == "employer") {
+      // Search through all carbon credit records for all employees linked to employer
+    } else if (role == "bank") {
+      // Search through net carbon credits for every employer in db.
+    }
   } catch (error) {
     res.status(402).json({ message: "User not verified" });
     res.redirect("/login");
   }
 });
 
+//TODO: Calculate carbon credits from inputted values
 app.post("/ccsubmit", verifyUser, async (req, res) => {
   try {
     req.body.amount = 5;
@@ -153,6 +160,20 @@ app.post("/ccsubmit", verifyUser, async (req, res) => {
       }
     );
     res.status(200).json({ msg: "Success" });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(401).json({ msg: error });
+  }
+});
+
+app.get("/account", verifyUser, async (req, res) => {
+  try {
+    res.status(200).json({
+      first_name: req.user_account.first_name,
+      last_name: req.user_account.last_name,
+      email: req.user_account.email,
+      user_type: req.user_account.user_type,
+    });
   } catch (error) {
     console.log(`Error: ${error}`);
     res.status(401).json({ msg: error });
