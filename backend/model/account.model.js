@@ -27,7 +27,7 @@ const accountSchema = mongoose.Schema(
       required: [false],
     },
     carbon_credits: {
-      type: mongoose.SchemaTypes.ObjectId,
+      type: [mongoose.SchemaTypes.ObjectId],
     },
   },
   {

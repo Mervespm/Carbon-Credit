@@ -119,11 +119,43 @@ app.post("/createAccount", async (req, res) => {
 app.get("/dashboard", verifyUser, async (req, res) => {
   try {
     //TODO: Retrieve user's carbon credit data from database
+    req.user_account.carbon_credits;
 
-    res.status(200).json({ msg: "Success" });
+    const carbon_credit_records = await carbon_credit
+      .find()
+      .where("_id")
+      .in(req.user_account.carbon_credits);
+
+    console.log(`Carbon credit records: ${carbon_credit_records}`);
+
+    res.status(200).json({ msg: carbon_credit_records });
   } catch (error) {
     res.status(402).json({ message: "User not verified" });
     res.redirect("/login");
+  }
+});
+
+app.post("/ccsubmit", verifyUser, async (req, res) => {
+  try {
+    req.body.amount = 5;
+
+    const carbon_credit_record = await carbon_credit.create(req.body);
+
+    await Account.findOneAndUpdate(
+      {
+        _id: req.user_account._id,
+      },
+      {
+        carbon_credits: [
+          ...req.user_account.carbon_credits,
+          carbon_credit_record._id,
+        ],
+      }
+    );
+    res.status(200).json({ msg: "Success" });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(401).json({ msg: error });
   }
 });
 
