@@ -74,7 +74,9 @@ const RegisterEmployer = () => {
 
       if (res.ok) {
         toast.success('Registration submitted. Await approval by Carbon Credit Bank.');
-        setTimeout(() => navigate('/login'), 5000);
+        localStorage.setItem("token", data.token); // assuming backend returns a token
+        navigate('/dashboard/employer'); // or whatever your dashboard route is
+
       } else {
         setError(data.message || 'Registration failed.');
       }

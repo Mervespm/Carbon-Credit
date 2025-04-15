@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../assets/styles/triplogger.css';
 
 const TripLogger = () => {
@@ -11,6 +12,7 @@ const TripLogger = () => {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [officeLocation, setOfficeLocation] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOfficeLocation = async () => {
@@ -77,7 +79,6 @@ const TripLogger = () => {
       setMessage("Please select a transport type first.");
       return;
     }
-    // getLocation(setStartLoc);
     setStartLoc({ lat: 26.3795, lng: 0.0913 });
     setElapsed(0);
     setSubmitted(false);
@@ -124,14 +125,15 @@ const TripLogger = () => {
         if (res.ok) {
           setCredits(data.trip.creditsEarned);
           setSubmitted(true);
-          setMessage("Trip saved successfully.");
+          setMessage("Trip saved successfully. Redirecting to dashboard...");
+          setTimeout(() => navigate('/dashboard/employee'), 3000);
         } else {
           setMessage(data.message || "Trip submission failed.");
         }
       } catch {
         setMessage("Server error. Try again.");
       }
-    }, 1000); // Delay to ensure GPS is set
+    }, 1000);
   };
 
   return (
@@ -143,7 +145,7 @@ const TripLogger = () => {
 
       <div className="form-group">
         <label>Transportation Type</label>
-        <select className="form-control" value={transportType} onChange={(e) => setTransportType(e.target.value)}>
+        <select className="form-control" value={transportType} onChange={(e) => setTransportType(e.target.value)} disabled={submitted}>
           <option value="">-- Select --</option>
           <option value="carpool">Carpool</option>
           <option value="bus">Bus</option>
@@ -153,7 +155,7 @@ const TripLogger = () => {
       </div>
 
       <div className="d-flex justify-content-between mt-3 mb-3">
-        <button className="btn btn-success w-100 mr-2" onClick={handleStart} disabled={!transportType || timerId}>
+        <button className="btn btn-success w-100 mr-2" onClick={handleStart} disabled={!transportType || timerId || submitted}>
           Start Trip
         </button>
         <button className="btn btn-secondary w-100 ml-2" onClick={handleEnd} disabled={!timerId || submitted}>
@@ -167,7 +169,8 @@ const TripLogger = () => {
 
       {credits !== null && (
         <div className="alert alert-success text-center mt-4">
-          Trip logged! You earned <strong>{credits}</strong> carbon credits.
+          Trip logged! You earned <strong>{credits}</strong> carbon credits.<br />
+          Redirecting to your dashboard...
         </div>
       )}
 

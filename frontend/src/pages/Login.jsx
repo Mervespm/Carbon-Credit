@@ -75,7 +75,7 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="btn btn-block login-btn mt-3">Login</button>
+          <button type="submit" className="login-btn mt-3">Login</button>
 
           <p className="register-text mt-4">
             Don’t have an account? <br />

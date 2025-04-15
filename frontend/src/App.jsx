@@ -8,6 +8,8 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import TripLogger from './pages/TripLogger';
 import BankDashboard from './pages/BankDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import EmployerDashboard from './pages/EmployerDashboard';
+
 
 
 
@@ -37,6 +39,7 @@ function App() {
               <BankDashboard />
             </ProtectedRoute>
           } />
+          <Route path="dashboard/employer" element={<EmployerDashboard />} />
 
         </Route>
       </Routes>

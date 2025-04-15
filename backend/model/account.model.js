@@ -1,36 +1,30 @@
+
+
 import mongoose from "mongoose";
 
-const accountSchema = mongoose.Schema(
-  {
-    first_name: {
-      type: String,
-      required: [true, "Enter a first name"],
-    },
-    last_name: {
-      type: String,
-      required: [true, "Enter a last name"],
-    },
-    email: {
-      type: String,
-      required: [true, "Enter a valid email"],
-    },
-    password: {
-      type: String,
-      required: [true, "Enter a password"],
-    },
-    user_type: {
-      type: String,
-      required: [false, "All users must have a type"],
-      default: "customer",
-    },
-    carbon_credits: {
-      type: mongoose.SchemaTypes.ObjectId,
-    },
+const accountSchema = new mongoose.Schema({
+  first_name: String,
+  last_name: String,
+  email: String,
+  password: String,
+  user_type: String,
+  company_name: String,
+  company_code: String,
+  isApproved: { type: Boolean, default: false },
+  homeLocation: {
+    lat: Number,
+    lng: Number
   },
-  {
-    timestamps: true,
+  officeLocation: {
+    lat: Number,
+    lng: Number
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-);
+});
+
 
 const Account = mongoose.model("Account", accountSchema);
 export default Account;
