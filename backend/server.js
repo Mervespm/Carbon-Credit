@@ -1,7 +1,7 @@
 import express from "express";
 const app = express();
 import run from "./mongoCommands.js";
-import verifyUser from "./verifyUser.js";
+import { verifyUser, verifyLogin } from "./verifyUser.js";
 import Account from "./model/account.model.js";
 import carbon_credit from "./model/carbon_credit.model.js";
 import mongoose from "mongoose";
@@ -68,7 +68,7 @@ app.get("/", (req, res) => {
 });
 
 // Login request will fail if credentials given do not exist in db.
-app.post("/login", async (req, res) => {
+app.post("/login", verifyLogin, async (req, res) => {
   try {
     const record = await Account.findOne({
       email: req.body.email,
