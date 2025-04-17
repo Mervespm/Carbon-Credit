@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../assets/styles/login.css'; // your custom CSS
+import '../assets/styles/login.css';
 import Logo from '../assets/images/logo.png';
 
 function Login() {
@@ -13,31 +13,38 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:8080/api/login', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: 'include'
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json();
+      console.log("Login response:", data);
 
-        if (data.message === "Account not approved yet") {
-          setError("Your account is awaiting approval.");
-          return;
-        }
-
-        localStorage.setItem("token", data.token);
-
-        switch (data.user.role) {
-          case 'employee': navigate('/dashboard/employee'); break;
-          case 'employer': navigate('/dashboard/employer'); break;
-          case 'bank': navigate('/dashboard/bank'); break;
-          default: setError('Unknown role.'); break;
-        }
-      } else {
-        setError('Invalid credentials, please try again.');
+      if (!res.ok) {
+        setError(data.message || 'Invalid credentials.');
+        return;
       }
+
+      if (data.message === "Your account is awaiting approval.") {
+        setError("Your account is awaiting approval.");
+        return;
+      }
+
+      if (data.message === "Your registration was rejected.") {
+        setError("Your registration was rejected.");
+        return;
+      }
+
+      switch (data.role) {
+        case 'employee': navigate('/dashboard/employee'); break;
+        case 'employer': navigate('/dashboard/employer'); break;
+        case 'bank': navigate('/dashboard/bank'); break;
+        default: setError('Unknown role.'); break;
+      }
+
     } catch (err) {
       setError('Server error. Please try again.');
     }

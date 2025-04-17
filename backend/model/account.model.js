@@ -11,6 +11,11 @@ const accountSchema = new mongoose.Schema({
   company_name: String,
   company_code: String,
   isApproved: { type: Boolean, default: false },
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
   homeLocation: {
     lat: Number,
     lng: Number

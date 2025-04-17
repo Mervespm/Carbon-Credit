@@ -1,34 +1,26 @@
 import Account from "../model/account.model.js";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = "super_secret_key"; 
-
 
 const generateCompanyCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
-
-
 export const register = async (req, res) => {
-  console.log("REGISTER BODY:", req.body);
   const { email, user_type, company_code } = req.body;
 
   try {
-
     const exists = await Account.findOne({ email });
     if (exists) return res.status(400).json({ message: "Email already exists." });
 
     const userData = {
       ...req.body,
-      isApproved: false 
+      isApproved: false
     };
-
 
     if (user_type === "employee") {
       const employer = await Account.findOne({ company_code, user_type: "employer" });
-      if (!employer) return res.status(400).json({ message: "Invalid company code." });
+      if (!employer || employer.approvalStatus !== 'approved') {
+        return res.status(400).json({ message: "Invalid or unapproved company code." });
+      }
       userData.isApproved = true;
     }
-
 
     if (user_type === "employer") {
       userData.company_code = generateCompanyCode();
@@ -36,11 +28,8 @@ export const register = async (req, res) => {
 
     const newUser = new Account(userData);
     await newUser.save();
-
-    console.log("USER CREATED:", newUser);
     res.status(201).json({ message: "Account created", user: newUser });
   } catch (err) {
-    console.error("REGISTER ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -51,37 +40,51 @@ export const login = async (req, res) => {
   try {
     const user = await Account.findOne({ email, password });
 
-    if (!user) return res.status(404).json({ message: "Invalid credentials." });
-    if (!user.isApproved) return res.status(403).json({ message: "Account not approved yet." });
+    if (!user) {
+      return res.status(404).json({ message: "Invalid credentials." });
+    }
 
-    const token = jwt.sign(
-      { id: user._id, role: user.user_type },
-      JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    // Employer check approvalStatus
+    if (user.user_type === "employer") {
+      if (user.approvalStatus === "pending") {
+        return res.status(403).json({ message: "Your account is awaiting approval." });
+      }
+      if (user.approvalStatus === "rejected") {
+        return res.status(403).json({ message: "Your registration was rejected." });
+      }
+    }
 
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        role: user.user_type,
-        first_name: user.first_name,
-        company_code: user.company_code,
-      },
-    });
+    // Employee must be approved by employer
+    if (user.user_type === "employee" && !user.isApproved) {
+      return res.status(403).json({ message: "Your account is not yet approved by your employer." });
+    }
+
+    req.session.user = {
+      user_id: user._id,
+      role: user.user_type
+    };
+    user.cookie = req.session.id;
+    await user.save();
+
+    res.status(200).json({ message: "Login successful", role: user.user_type });
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 };
 
-export const validateCompanyCode = async (req, res) => {
-  const { company_code } = req.body;
 
+export const logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ message: "Failed to log out" });
+    res.clearCookie("connect.sid");
+    res.status(200).json({ message: "Logged out" });
+  });
+};
+
+export const validateCompanyCode = async (req, res) => {
   try {
     const employer = await Account.findOne({
-      company_code,
+      company_code: req.body.company_code,
       user_type: 'employer',
       isApproved: true,
     });
@@ -96,32 +99,39 @@ export const validateCompanyCode = async (req, res) => {
   }
 };
 
-
 export const getProfile = async (req, res) => {
   try {
-    const employee = await Account.findById(req.user.id);
-    if (!employee || employee.user_type !== 'employee') {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
+    const user = await Account.findById(req.session.user.user_id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const employer = await Account.findOne({
-      company_code: employee.company_code,
-      user_type: 'employer',
-      isApproved: true
-    });
+    if (user.user_type === 'employee') {
+      const employer = await Account.findOne({
+        company_code: user.company_code,
+        user_type: 'employer',
+        isApproved: true
+      });
 
-    if (!employer || !employer.officeLocation) {
-      return res.status(404).json({ message: 'Employer office location not found' });
+      if (!employer || !employer.officeLocation) {
+        return res.status(404).json({ message: 'Employer office location not found' });
+      }
+
+      return res.status(200).json({
+        first_name: user.first_name,
+        homeLocation: user.homeLocation,
+        officeLocation: employer.officeLocation,
+        company: employer.company_name,
+        role: user.user_type
+      });
     }
 
     res.status(200).json({
-      first_name: employee.first_name,
-      homeLocation: employee.homeLocation,
-      officeLocation: employer.officeLocation,
-      company: employer.company_name,
-      role: employee.user_type
+      first_name: user.first_name,
+      officeLocation: user.officeLocation,
+      role: user.user_type,
+      company_code: user.company_code,
+      isApproved: user.isApproved
     });
   } catch (err) {
-    res.status(500).json({ message: 'Server error while fetching profile' });
+    res.status(500).json({ message: 'Failed to get profile' });
   }
 };

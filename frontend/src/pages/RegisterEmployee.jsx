@@ -31,10 +31,11 @@ const RegisterEmployee = () => {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:8080/api/validate-company-code', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/validate-company-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_code: form.company_code })
+        body: JSON.stringify({ company_code: form.company_code }),
+        credentials: 'include'
       });
 
       const data = await res.json();
@@ -70,28 +71,42 @@ const RegisterEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) return setError('Passwords do not match.');
-    if (!form.homeLocation) return setError('Please set your home location.');
-
+  
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+  
+    if (!form.homeLocation) {
+      setError('Please set your home location.');
+      return;
+    }
+  
     try {
-      const res = await fetch('http://localhost:8080/api/register', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
+        credentials: 'include'
       });
-
+  
       const data = await res.json();
-
-      if (res.ok) {
-        toast.success('Account created. Awaiting approval.');
-        setTimeout(() => navigate('/login'), 3000);
-      } else {
+  
+      if (!res.ok) {
+        setStep(1); 
         setError(data.message || 'Registration failed.');
+        return;
       }
+  
+      toast.success('Account created. Awaiting approval.');
+      setTimeout(() => navigate('/login'), 3000);
+  
     } catch {
+      setStep(1); 
       setError('Server error. Try again.');
     }
   };
+  
 
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
@@ -145,6 +160,12 @@ const RegisterEmployee = () => {
                   Set Home Location (Use My Current Location)
                 </button>
               </div>
+
+              {form.homeLocation && (
+                <p className="text-muted text-center mt-2">
+                  Home Location Set: ({form.homeLocation.lat.toFixed(3)}, {form.homeLocation.lng.toFixed(3)})
+                </p>
+              )}
 
               <button type="submit" className="btn login-btn btn-block mt-2">Register</button>
             </>

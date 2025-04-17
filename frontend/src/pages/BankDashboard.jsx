@@ -7,73 +7,79 @@ const BankDashboard = () => {
 
   const fetchPendingEmployers = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
-  
     try {
-      const res = await fetch('http://localhost:8080/api/employers/pending', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/employer/pending`, {
+        credentials: 'include'
       });
-  
       const data = await res.json();
       if (res.ok) {
         setEmployers(data);
       } else {
-        setMessage(data.message || 'Unauthorized or failed to load employers');
+        setMessage(data.message || 'Failed to load employers');
       }
     } catch (err) {
-      setMessage('Failed to load employers');
+      setMessage('Server error while loading employers');
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const handleAction = async (id, approve = true) => {
+    const action = approve ? 'approve' : 'disapprove';
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/employer/${action}/${id}`, {
+        method: 'PATCH',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage(data.message);
+        setEmployers((prev) => prev.filter((e) => e._id !== id));
+      } else {
+        setMessage(data.message || 'Failed to update employer');
+      }
+    } catch {
+      setMessage('Server error');
+    }
+  };
+
   useEffect(() => {
     fetchPendingEmployers();
   }, []);
 
-  const approveEmployer = async (id) => {
-    const token = localStorage.getItem("token");
-  
-    try {
-      const res = await fetch(`http://localhost:8080/api/employers/approve/${id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      if (res.ok) {
-        setMessage('Employer approved successfully');
-        setEmployers((prev) => prev.filter((e) => e._id !== id));
-      } else {
-        const data = await res.json();
-        setMessage(data.message || 'Failed to approve');
-      }
-    } catch (err) {
-      setMessage('Server error');
-    }
-  };
-  
-
   return (
-    <div className="bank-dashboard-container">
-      <h2>Pending Employer Approvals</h2>
-      {message && <p>{message}</p>}
+    <div className="container py-5">
+      <div className="mb-4 p-4 rounded" style={{ backgroundColor: "var(--green-base)", color: "#fff" }}>
+        <h3>Bank Admin Dashboard</h3>
+        <p>Manage employer registrations below:</p>
+      </div>
+
+      {message && <div className="alert alert-info text-center">{message}</div>}
+
       {loading ? (
-        <p>Loading employers...</p>
+        <p className="text-center">Loading employers...</p>
       ) : employers.length === 0 ? (
-        <p>No pending employers.</p>
+        <div className="alert alert-success text-center">No pending employers.</div>
       ) : (
-        <ul>
-          {employers.map((emp) => (
-            <li key={emp._id} style={{ marginBottom: '1rem' }}>
-              <strong>{emp.company_name}</strong> ({emp.email})<br />
-              <button onClick={() => approveEmployer(emp._id)}>Approve</button>
-            </li>
-          ))}
-        </ul>
+        <div className="card">
+          <div className="card-header" style={{ backgroundColor: "var(--green-deep)", color: "#fff" }}>
+            Pending Employer Approvals
+          </div>
+          <ul className="list-group list-group-flush">
+            {employers.map((emp) => (
+              <li key={emp._id} className="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{emp.company_name}</strong><br />
+                  <small>{emp.email}</small>
+                </div>
+                <div>
+                  <button className="btn btn-success btn-sm mr-2" onClick={() => handleAction(emp._id, true)}>Approve</button>
+                  <button className="btn btn-outline-danger btn-sm" onClick={() => handleAction(emp._id, false)}>Reject</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

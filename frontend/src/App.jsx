@@ -13,6 +13,7 @@ import EmployerDashboard from './pages/EmployerDashboard';
 
 
 
+
 function App() {
   return (
     <Router>
@@ -39,7 +40,11 @@ function App() {
               <BankDashboard />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/employer" element={<EmployerDashboard />} />
+          <Route path="dashboard/employer" element={
+            <ProtectedRoute requiredRole="employer">
+              <EmployerDashboard />
+            </ProtectedRoute>
+          } />
 
         </Route>
       </Routes>

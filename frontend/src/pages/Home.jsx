@@ -14,7 +14,7 @@ function Home() {
         Together, we create a smarter, greener commute system — one trip at a time.
         </p>
 
-      <Link to="/login" className="home-login-btn">Go to Login</Link>
+      
     </div>
   );
 }
