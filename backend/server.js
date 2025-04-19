@@ -1,8 +1,14 @@
 import express from "express";
 const app = express();
 import run from "./mongoCommands.js";
-import { verifyUser, verifyLogin, verifyEmployer } from "./verifyUser.js";
+import {
+  verifyUser,
+  verifyLogin,
+  verifyEmployer,
+  verifyBank,
+} from "./verifyUser.js";
 import account from "./model/account.model.js";
+import pending_account from "./model/pending_account.model.js";
 import carbon_credit from "./model/carbon_credit.model.js";
 import sell_order from "./model/sell_order.model.js";
 import mongoose from "mongoose";
@@ -103,15 +109,43 @@ app.post("/createAccount", async (req, res) => {
     });
 
     if (account_record) {
-      res.status(500).json({ message: "Email already exists in database" });
+      return res
+        .status(500)
+        .json({ message: "Email already exists in database" });
+    } else {
+      const user_account = await account.create(req.body);
+      console.log(user_account);
+      res.status(200).json(user_account);
     }
-
-    const user_account = await account.create(req.body);
-    console.log(user_account);
-    res.status(200).json(user_account);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+});
+
+// Creates an employer account pending approval from the carbon credit bank
+app.post("/createEmployerAccount", async (req, res) => {
+  try {
+    const account_record = await account.findOne({
+      email: req.body.email,
+    });
+
+    if (account_record) {
+      return res
+        .status(500)
+        .json({ message: "Email already exists in database" });
+    } else {
+      req.body.user_type = "employer";
+      const pending_user_account = await pending_account.create(req.body);
+      res.status(200).json(pending_user_account);
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get("/pendingAccounts", verifyBank, async (req, res) => {
+  try {
+  } catch (error) {}
 });
 
 // Gets the user's carbon credit data

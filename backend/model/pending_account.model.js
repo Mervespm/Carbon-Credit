@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const accountSchema = mongoose.Schema(
+const pending_account_schema = mongoose.Schema(
   {
     first_name: {
       type: String,
@@ -24,7 +24,7 @@ const accountSchema = mongoose.Schema(
     },
     company_id: {
       type: String,
-      required: () => {
+      required: function () {
         this.user_type == "employee";
       },
     },
@@ -32,20 +32,14 @@ const accountSchema = mongoose.Schema(
       type: String,
       required: [false],
     },
-    carbon_credits: {
-      type: [mongoose.SchemaTypes.ObjectId],
-    },
-    buy_orders: {
-      type: [mongoose.SchemaTypes.ObjectId],
-    },
-    sell_orders: {
-      type: [mongoose.SchemaTypes.ObjectId],
-    },
   },
   {
     timestamps: true,
   }
 );
 
-const account = mongoose.model("Account", accountSchema);
-export default account;
+const pending_account = mongoose.model(
+  "Pending Accounts",
+  pending_account_schema
+);
+export default pending_account;
