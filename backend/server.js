@@ -145,7 +145,13 @@ app.post("/createEmployerAccount", async (req, res) => {
 
 app.get("/pendingAccounts", verifyBank, async (req, res) => {
   try {
-  } catch (error) {}
+    const pending_accounts = await pending_account.find({});
+    console.log(`Pending accounts: ${pending_accounts}`);
+    res.status(200).json({ msg: pending_accounts });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(500).json({ msg: error });
+  }
 });
 
 // Gets the user's carbon credit data
