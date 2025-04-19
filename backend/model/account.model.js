@@ -24,7 +24,7 @@ const accountSchema = mongoose.Schema(
     },
     company_id: {
       type: String,
-      required: () => {
+      required: function () {
         this.user_type == "employee";
       },
     },
