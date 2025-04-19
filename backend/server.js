@@ -106,9 +106,9 @@ app.post("/createAccount", async (req, res) => {
       res.status(500).json({ message: "Email already exists in database" });
     }
 
-    const account = await account.create(req.body);
-    console.log(account);
-    res.status(200).json(account);
+    const user_account = await account.create(req.body);
+    console.log(user_account);
+    res.status(200).json(user_account);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
