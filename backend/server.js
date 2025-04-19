@@ -1,13 +1,15 @@
 import express from "express";
 const app = express();
 import run from "./mongoCommands.js";
-import { verifyUser, verifyLogin } from "./verifyUser.js";
-import Account from "./model/account.model.js";
+import { verifyUser, verifyLogin, verifyEmployer } from "./verifyUser.js";
+import account from "./model/account.model.js";
 import carbon_credit from "./model/carbon_credit.model.js";
+import sell_order from "./model/sell_order.model.js";
 import mongoose from "mongoose";
 import "dotenv/config";
 import cors from "cors";
 import session from "express-session";
+import buy_order from "./model/buy_order.model.js";
 
 /* API Requests
 
@@ -63,14 +65,11 @@ app.use(cors());
 app.listen(8080, () => {
   console.log("Server started on port 8080");
 });
-app.get("/", (req, res) => {
-  res.json("Get request test successful");
-});
 
 // Login request will fail if credentials given do not exist in db.
 app.post("/login", verifyLogin, async (req, res) => {
   try {
-    const record = await Account.findOne({
+    const record = await account.findOne({
       email: req.body.email,
       password: req.body.password,
     });
@@ -81,7 +80,7 @@ app.post("/login", verifyLogin, async (req, res) => {
       req.session.user = { user_id: id };
 
       // Appends cookie to user record in DB
-      await Account.findOneAndUpdate(
+      await account.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(id) },
         { cookie: req.session.id }
       );
@@ -99,7 +98,7 @@ app.post("/login", verifyLogin, async (req, res) => {
 // Create account request will fail if email already exists in db.
 app.post("/createAccount", async (req, res) => {
   try {
-    const account_record = await Account.findOne({
+    const account_record = await account.findOne({
       email: req.body.email,
     });
 
@@ -107,7 +106,7 @@ app.post("/createAccount", async (req, res) => {
       res.status(500).json({ message: "Email already exists in database" });
     }
 
-    const account = await Account.create(req.body);
+    const account = await account.create(req.body);
     console.log(account);
     res.status(200).json(account);
   } catch (error) {
@@ -142,13 +141,14 @@ app.get("/dashboard", verifyUser, async (req, res) => {
 });
 
 //TODO: Calculate carbon credits from inputted values
+// Submits the user's carbon credits to the DB and links to the employer
 app.post("/ccsubmit", verifyUser, async (req, res) => {
   try {
     req.body.amount = 5;
 
     const carbon_credit_record = await carbon_credit.create(req.body);
 
-    await Account.findOneAndUpdate(
+    await account.findOneAndUpdate(
       {
         _id: req.user_account._id,
       },
@@ -166,6 +166,7 @@ app.post("/ccsubmit", verifyUser, async (req, res) => {
   }
 });
 
+// Gets the user's account information
 app.get("/account", verifyUser, async (req, res) => {
   try {
     res.status(200).json({
@@ -180,10 +181,36 @@ app.get("/account", verifyUser, async (req, res) => {
   }
 });
 
+// Updates the user's account information
+app.put("/updateAccount", verifyUser, async (req, res) => {
+  try {
+    if (req.body.first_name) req.user_account.first_name = req.body.first_name;
+    if (req.body.last_name) req.user_account.last_name = req.body.last_name;
+    if (req.body.email) req.user_account.email = req.body.email;
+
+    const record = await account.findOneAndUpdate(
+      {
+        _id: req.user_account._id,
+      },
+      {
+        first_name: req.user_account.first_name,
+        last_name: req.user_account.last_name,
+        email: req.user_account.email,
+      }
+    );
+    console.log(`Updated record: ${record}`);
+    res.status(200).json({ msg: "Successful Update" });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(401).json({ msg: error });
+  }
+});
+
+// Logs the user out of the application
 app.post("/logout", verifyUser, async (req, res) => {
   try {
     // Delete cookie from user in DB
-    await Account.findOneAndUpdate(
+    await account.findOneAndUpdate(
       {
         _id: new mongoose.Types.ObjectId(req.session.user.user_id),
       },
@@ -195,3 +222,33 @@ app.post("/logout", verifyUser, async (req, res) => {
     res.redirect("/login");
   }
 });
+
+// If the user is an employer creates a buy order and links to employer's record in DB
+app.post("/trades/buy", verifyEmployer, async (req, res) => {
+  try {
+    console.log(JSON.stringify(req.body));
+    let b_order = {
+      cc_amount: req.body.cc_amount,
+      cc_price: req.body.cc_price,
+      employer_id: req.user_account._id,
+    };
+
+    b_order = await buy_order.create(b_order);
+    await account.findOneAndUpdate(
+      {
+        _id: req.user_account._id,
+      },
+      { buy_orders: [...req.user_account.buy_orders, b_order._id] }
+    );
+
+    console.log(`Buy order created: ${b_order}`);
+
+    res.status(200).json({ msg: "Succesfully posted buy order" });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(401).json({ msg: error });
+  }
+});
+
+// If the user is an employer creates a sell request and links to employer's record in DB.
+app.post("/trades/sell", verifyEmployer, async (req, res) => {});

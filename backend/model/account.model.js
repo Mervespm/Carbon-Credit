@@ -29,11 +29,14 @@ const accountSchema = mongoose.Schema(
     carbon_credits: {
       type: [mongoose.SchemaTypes.ObjectId],
     },
+    buy_orders: {
+      type: [mongoose.SchemaTypes.ObjectId],
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const Account = mongoose.model("Account", accountSchema);
-export default Account;
+const account = mongoose.model("Account", accountSchema);
+export default account;
