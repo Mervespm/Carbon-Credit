@@ -42,7 +42,7 @@ const EmployerDashboard = () => {
     <div className="container py-5">
       <div className="mb-4 p-4 rounded" style={{ backgroundColor: "var(--green-base)", color: "#fff" }}>
         <h3>Welcome, {employer.first_name}</h3>
-        <p className="mb-1">Company: <strong>{employer.company}</strong></p>
+        <p className="mb-1">Company: <strong>{employer.company_name}</strong></p>
         <p className="mb-1">Company Code: <strong>{employer.company_code}</strong></p>
         <p>Total Company Carbon Credits: <strong>{credits.toFixed(2)}</strong></p>
       </div>

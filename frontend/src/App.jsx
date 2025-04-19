@@ -11,9 +11,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import EmployerDashboard from './pages/EmployerDashboard';
 
 
-
-
-
 function App() {
   return (
     <Router>
