@@ -251,4 +251,28 @@ app.post("/trades/buy", verifyEmployer, async (req, res) => {
 });
 
 // If the user is an employer creates a sell request and links to employer's record in DB.
-app.post("/trades/sell", verifyEmployer, async (req, res) => {});
+app.post("/trades/sell", verifyEmployer, async (req, res) => {
+  try {
+    console.log(JSON.stringify(req.body));
+    let s_order = {
+      cc_amount: req.body.cc_amount,
+      cc_price: req.body.cc_price,
+      employer_id: req.user_account._id,
+    };
+
+    s_order = await sell_order.create(s_order);
+    await account.findOneAndUpdate(
+      {
+        _id: req.user_account._id,
+      },
+      { buy_orders: [...req.user_account.sell_orders, s_order._id] }
+    );
+
+    console.log(`Sell order created: ${s_order}`);
+
+    res.status(200).json({ msg: "Succesfully posted sell order" });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(401).json({ msg: error });
+  }
+});

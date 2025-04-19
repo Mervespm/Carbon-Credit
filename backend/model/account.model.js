@@ -32,6 +32,9 @@ const accountSchema = mongoose.Schema(
     buy_orders: {
       type: [mongoose.SchemaTypes.ObjectId],
     },
+    sell_orders: {
+      type: [mongoose.SchemaTypes.ObjectId],
+    },
   },
   {
     timestamps: true,
