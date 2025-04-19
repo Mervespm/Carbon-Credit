@@ -3,6 +3,7 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import account from "./model/account.model.js";
+import { decrypt_data } from "./server.js";
 
 // Verifies if cookie exists and is valid
 const verifyUser = async (req, res, next) => {
@@ -84,6 +85,7 @@ const verifyBank = async (req, res, next) => {
 // If user is already logged in redirect them from the login page
 const verifyLogin = async (req, res, next) => {
   console.log(`Verify login`);
+
   try {
     const user_account = await account.findOne({
       _id: new mongoose.Types.ObjectId(req.session.user.user_id),

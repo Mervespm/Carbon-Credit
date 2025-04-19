@@ -14,8 +14,28 @@ import sell_order from "./model/sell_order.model.js";
 import mongoose from "mongoose";
 import "dotenv/config";
 import cors from "cors";
+import crypto from "crypto";
 import session from "express-session";
 import buy_order from "./model/buy_order.model.js";
+
+const iv = crypto.randomBytes(16);
+const key = process.env.HASH;
+const encrypt_method = process.env.encrypt_method;
+
+// Used for reference: https://www.youtube.com/watch?v=heldAl8Cfr4
+const encrypt_data = (message) => {
+  const cipher = crypto.createCipheriv(encrypt_method, key, iv);
+  cipher.update(message, "utf-8", "hex");
+  return cipher.final("hex");
+};
+const decrypt_data = (encrypted_message) => {
+  const decipher = crypto.createDecipheriv(encrypt_method, key, iv);
+  decipher.update(encrypted_message, "hex", "utf-8");
+  return decipher.final("utf-8");
+};
+
+console.log(`Random string: ${crypto.randomUUID()}`);
+// console.log(cipher);
 
 /* API Requests
 
@@ -59,7 +79,7 @@ run().catch(console.dir);
 // TODO: Make session cookies secure
 app.use(
   session({
-    secret: process.env.ACCESS_TOKEN_HASH,
+    secret: process.env.secret,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false, maxAge: 30000 },
@@ -81,23 +101,20 @@ app.post("/login", verifyLogin, async (req, res) => {
     });
     if (record) {
       const id = record._id;
-      // console.log(`User id: ${id}`);
+
       req.session.authenticated = true;
       req.session.user = { user_id: id };
-
+      // console.log(`Encrypted id: ${req.session.user.user_id}`);
       // Appends cookie to user record in DB
-      await account.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(id) },
-        { cookie: req.session.id }
-      );
+      await account.findOneAndUpdate({ _id: id }, { cookie: req.session.id });
 
       res.status(200).json({ msg: "Successful Login" });
     } else {
       res.status(401).json({ message: "Invalid login credentials" });
     }
   } catch (error) {
-    // console.log(`Error: ${error}`);
-    res.status(500).json(error);
+    console.log(`Error: ${error}`);
+    res.status(500).json({ msg: error });
   }
 });
 
@@ -151,6 +168,36 @@ app.get("/pendingAccounts", verifyBank, async (req, res) => {
   } catch (error) {
     console.log(`Error: ${error}`);
     res.status(500).json({ msg: error });
+  }
+});
+
+app.post("/approveAccount", verifyBank, async (req, res) => {
+  try {
+    if (req.body.approve == true) {
+      const pending_record = await pending_account.findOneAndDelete({
+        _id: new mongoose.Types.ObjectId(req.body.id),
+      });
+      const account_record = {
+        first_name: pending_record.first_name,
+        last_name: pending_record.last_name,
+        email: pending_record.email,
+        password: pending_record.password,
+        user_type: "employer",
+        company_id: crypto.randomUUID(),
+      };
+
+      await account.create(account_record);
+      console.log(`Record: ${account_record}`);
+      res.status(200).json({ msg: "Success" });
+    } else {
+      await pending_account.findOneAndDelete({
+        _id: new mongoose.Types.ObjectId(req.body.id),
+      });
+      res.status(200).json({ msg: "Pending account deleted" });
+    }
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res.status(401).json({ msg: error });
   }
 });
 
@@ -316,3 +363,5 @@ app.post("/trades/sell", verifyEmployer, async (req, res) => {
     res.status(401).json({ msg: error });
   }
 });
+
+export { decrypt_data };
