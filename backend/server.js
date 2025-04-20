@@ -68,7 +68,7 @@ app.use(session({
     httpOnly: true,
   },
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
+    mongoUrl: process.env.MONGO_URI ,
     collectionName: "sessions",
   }),
 }));
