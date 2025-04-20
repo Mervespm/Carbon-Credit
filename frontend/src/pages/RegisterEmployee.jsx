@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../assets/styles/register.css';
+import Logo from '../assets/images/logo.png';
 
 const RegisterEmployee = () => {
   const navigate = useNavigate();
@@ -111,6 +112,9 @@ const RegisterEmployee = () => {
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
       <div className="register-card p-4 shadow w-100" style={{ maxWidth: '500px' }}>
+        <div className="text-center mb-4">
+                  <img src={Logo} alt="Logo" className="login-logo mb-2" />
+                </div>
         <h2 className="text-center mb-4">Employee Registration</h2>
         {error && <div className="alert alert-danger text-center">{error}</div>}
 

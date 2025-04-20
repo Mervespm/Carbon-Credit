@@ -3,7 +3,12 @@ import Account from "../model/account.model.js";
 const generateCompanyCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
 export const register = async (req, res) => {
+  
   const { email, user_type, company_code } = req.body;
+  if (!email || !req.body.password || !req.body.first_name || !req.body.last_name) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+  
 
   try {
     const exists = await Account.findOne({ email });

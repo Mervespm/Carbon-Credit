@@ -12,7 +12,7 @@ const tripSchema = mongoose.Schema({
   },
   transportationType: {
     type: String,
-    enum: ['bus', 'carpool', 'bike', 'remote'],
+    enum: ['carpool', 'bus', 'remote'],
     required: true
   },
   distance: Number,

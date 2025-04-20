@@ -12,7 +12,11 @@ const verifyUser = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid session" });
     }
 
-    req.user_account = user_account; 
+    req.user_account = user_account;
+    req.user = {
+      id: user_account._id,
+      role: user_account.user_type
+    }; 
     next();
   } catch (err) {
     console.error("verifyUser error:", err);

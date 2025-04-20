@@ -98,3 +98,10 @@
 }
 
 
+.location-box {
+  background-color: #f4f4f4;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}

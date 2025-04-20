@@ -109,6 +109,7 @@ const TripLogger = () => {
         if (!validRoute) {
           setMessage("Work trip must be between home and office.");
           setSubmitting(false);
+          setTimeout(() => navigate('/dashboard/employee'), 10000);
           return;
         }
       }
@@ -130,17 +131,17 @@ const TripLogger = () => {
           durationMinutes: duration,
           isWorkTrip,
           month,
-          distance: miles,
-          creditsEarned
+          distance: miles
         })
       });
+        
 
       const data = await res.json();
 
       if (res.ok) {
         setCredits(data.trip.creditsEarned);
         setMessage(`Trip complete! You earned ${data.trip.creditsEarned} credits.`);
-        setTimeout(() => navigate('/dashboard/employee'), 4000);
+        setTimeout(() => navigate('/dashboard/employee'), 10000);
       } else {
         setMessage(data.message || "Failed to log trip.");
       }
@@ -183,6 +184,21 @@ const TripLogger = () => {
           End Trip
         </button>
       </div>
+
+      <div className="location-box text-center mt-3">
+      {startLoc && endLoc && (
+        <div className="text-center mt-3">
+          <h6>Start Location</h6>
+          <p>Lat: {startLoc.lat.toFixed(5)}, Lng: {startLoc.lng.toFixed(5)}</p>
+          <h6>End Location</h6>
+          <p>Lat: {endLoc.lat.toFixed(5)}, Lng: {endLoc.lng.toFixed(5)}</p>
+        </div>
+      )}
+
+      </div>
+
+      
+
 
       {credits !== null && (
       <div className="alert alert-success mt-4 text-center">

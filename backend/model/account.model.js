@@ -3,10 +3,10 @@
 import mongoose from "mongoose";
 
 const accountSchema = new mongoose.Schema({
-  first_name: String,
-  last_name: String,
-  email: String,
-  password: String,
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },  
   user_type: String,
   company_name: String,
   company_code: String,

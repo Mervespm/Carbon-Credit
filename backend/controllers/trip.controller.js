@@ -39,13 +39,17 @@ export const logTrip = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const distance = haversineDistance(startLocation, endLocation);
-    const multipliers = { bus: 2, carpool: 3, remote: 20 };
+    const multipliers = {
+      bus: 3,
+      carpool: 2,
+      remote: 20
+    };
 
     let creditsEarned = 0;
 
     if (transportationType === "remote") {
       creditsEarned = multipliers.remote;
-    } else if (isWorkTrip && ["bus", "carpool"].includes(transportationType)) {
+    } else if (["bus", "carpool"].includes(transportationType)) {
       creditsEarned = distance * multipliers[transportationType];
     }
 
@@ -68,6 +72,7 @@ export const logTrip = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 
 
@@ -94,8 +99,7 @@ export const getEmployerEmployeeCredits = async (req, res) => {
     const results = [];
 
     for (const emp of employees) {
-      const userId = req.session.user.user_id;
-      const trips = await Trip.find({ userId });
+      const trips = await Trip.find({ userId: emp._id });
       const total = trips.reduce((sum, t) => sum + (t.creditsEarned || 0), 0);
       results.push({
         employee: `${emp.first_name} ${emp.last_name}`,

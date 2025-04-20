@@ -13,7 +13,9 @@ export const approveEmployer = async (req, res) => {
   try {
     const updated = await Account.findByIdAndUpdate(
       req.params.id,
-      { isApproved: true },
+      { isApproved: true,
+        approvalStatus: "approved" 
+       },
       { new: true }
     );
     if (!updated || updated.user_type !== "employer") {
