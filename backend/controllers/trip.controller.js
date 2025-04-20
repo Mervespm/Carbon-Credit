@@ -115,3 +115,34 @@ export const getEmployerEmployeeCredits = async (req, res) => {
     res.status(500).json({ message: "Failed to load employee credits" });
   }
 };
+export const getMonthlySummary = async (req, res) => {
+  try {
+    const userId = req.session.user.user_id;
+    const month = new Date().toISOString().slice(0, 7); // e.g., '2025-04'
+
+    const trips = await Trip.find({ userId, month });
+
+    let workMiles = 0;
+    let otherMiles = 0;
+    let totalCredits = 0;
+
+    for (const trip of trips) {
+      if (trip.isWorkTrip) workMiles += trip.distance || 0;
+      else otherMiles += trip.distance || 0;
+      totalCredits += trip.creditsEarned || 0;
+    }
+
+    const expected = 1000;
+    const savedMiles = Math.max(0, expected - otherMiles);
+
+    res.status(200).json({
+      month,
+      workMiles: workMiles.toFixed(2),
+      otherMiles: otherMiles.toFixed(2),
+      savedMiles: savedMiles.toFixed(2),
+      totalCredits: totalCredits.toFixed(2)
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load monthly summary' });
+  }
+};

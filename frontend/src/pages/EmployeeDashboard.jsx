@@ -8,12 +8,36 @@ const COLORS = ['#1F7D53', '#FF8C00', '#8884d8', '#00C49F'];
 const EmployeeDashboard = () => {
   const [trips, setTrips] = useState([]);
   const [totalCredits, setTotalCredits] = useState(0);
+  const [summary, setSummary] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
+          credentials: 'include'
+        });
+        const data = await res.json();
+  
+        if (!res.ok) {
+          console.warn("Not logged in:", data.message);
+          navigate("/login"); // redirect if session not found
+        } else {
+          console.log("User session found:", data);
+        }
+      } catch (err) {
+        console.error("Session check failed:", err);
+        navigate("/login");
+      }
+    };
+  
+    checkSession();
+  }, []);
+  
 
   useEffect(() => {
     const fetchTrips = async () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/my-trips`, {
-
         credentials: 'include'
       });
       const data = await res.json();
@@ -23,6 +47,19 @@ const EmployeeDashboard = () => {
       }
     };
     fetchTrips();
+  }, []);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/monthly-summary`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSummary(data);
+      }
+    };
+    fetchSummary();
   }, []);
 
   const creditData = trips.reduce((acc, trip) => {
@@ -41,6 +78,15 @@ const EmployeeDashboard = () => {
     <div className="container mt-5">
       <h1 className="mb-3">Welcome to Your Dashboard</h1>
       <h4>Total Carbon Credits: <strong>{totalCredits.toFixed(2)}</strong></h4>
+
+      {summary && (
+        <div className="alert alert-info mt-4">
+          <h5>Monthly Driving Summary ({summary.month})</h5>
+          <p><strong>Work Trip Miles:</strong> {summary.workMiles} mi</p>
+          <p><strong>Other Trip Miles:</strong> {summary.otherMiles} mi</p>
+          <p><strong>Expected Limit:</strong> 1000 mi</p>
+        </div>
+      )}
 
       <div className="text-center mt-3">
         <button className="btn btn-success" onClick={() => navigate('/trip')}>

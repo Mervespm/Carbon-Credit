@@ -11,10 +11,10 @@ import tripRoutes from "./routes/trip.routes.js";
 dotenv.config();
 const app = express();
 run().catch(console.dir);
-
+const PORT = process.env.PORT || 8080;
 
 app.use(cors({
-  origin: "http://localhost:5173", 
+  origin: process.env.CLIENT_URL, 
   credentials: true
 }));
 app.use(express.json());
@@ -44,6 +44,6 @@ app.get("/", (req, res) => {
   res.json("Get request test successful");
 });
 
-app.listen(8080, () => {
-  console.log("Server started on port 8080");
+app.listen(PORT, () => {
+  console.log("Server started on port PORT");
 });

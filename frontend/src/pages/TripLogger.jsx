@@ -73,7 +73,7 @@ const TripLogger = () => {
 
     try {
       const location = await getLocation();
-      setStartLoc({ lat: 26.3795, lng: 0.0913 });
+      setStartLoc({ lat: 26.3795, lng: -60.0913 });
       const now = Date.now();
       setStartTime(now);
       setMessage("Trip started. Please continue your journey and click 'End Trip' when done.");
@@ -109,7 +109,7 @@ const TripLogger = () => {
         if (!validRoute) {
           setMessage("Work trip must be between home and office.");
           setSubmitting(false);
-          setTimeout(() => navigate('/dashboard/employee'), 10000);
+          setTimeout(() => navigate('/dashboard/employee'), 5000);
           return;
         }
       }

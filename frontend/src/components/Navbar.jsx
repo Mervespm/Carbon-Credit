@@ -1,10 +1,11 @@
-import React, { useEffect, useState,useLocation } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../assets/styles/navbar.css';
 
 function Navbar() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation(); 
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -15,21 +16,27 @@ function Navbar() {
         if (res.ok) {
           const data = await res.json();
           setUser(data);
+        } else {
+          setUser(null);
         }
       } catch {
         setUser(null);
       }
     };
     fetchUser();
-  }, []);
+  }, [location.pathname]); 
 
   const handleLogout = async () => {
-    await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
-      method: 'POST',
-      credentials: 'include'
-    });
-    setUser(null);
-    navigate('/login');
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setUser(null);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   // Get dashboard link based on user role
@@ -60,9 +67,11 @@ function Navbar() {
       ) : (
         <>
           <Link to={getDashboardLink()}>Dashboard</Link>
+          <Link to="/account">My Account</Link>
           <span className="welcome">Hello, {user.first_name}</span>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </>
+
       )}
     </div>
   );

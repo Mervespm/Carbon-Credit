@@ -71,7 +71,9 @@ export const login = async (req, res) => {
     user.cookie = req.session.id;
     await user.save();
 
-    res.status(200).json({ message: "Login successful", role: user.user_type });
+    req.session.save(() => {
+      res.status(200).json({ message: "Login successful", role: user.user_type });
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -140,3 +142,35 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: 'Failed to get profile' });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.session.user.user_id;
+    const { first_name, last_name, homeLocation } = req.body;
+
+    const updated = await Account.findByIdAndUpdate(
+      userId,
+      { first_name, last_name, homeLocation },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json({ message: 'Profile updated', user: updated });
+  } catch (err) {
+    res.status(500).json({ message: 'Update failed' });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.session.user.user_id;
+    await Account.findByIdAndDelete(userId);
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.status(200).json({ message: 'Account deleted' });
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Delete failed' });
+  }
+};
+
