@@ -118,10 +118,9 @@ export const validateCompanyCode = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    console.log("📦 Session at /me:", req.session);
+
     const user = await Account.findById(req.session.user.user_id);
     
-
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
