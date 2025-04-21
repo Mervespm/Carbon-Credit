@@ -14,7 +14,7 @@ run().catch(console.dir);
 
 
 app.use(cors({
-  origin: "https://carbon-credit-git-main-mervespms-projects.vercel.app", 
+  origin: process.env.CLIENT_URL, 
   credentials: true
 }));
 app.use(express.json());
