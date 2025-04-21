@@ -64,15 +64,27 @@ export const login = async (req, res) => {
       return res.status(403).json({ message: "Your account is not yet approved by your employer." });
     }
 
-    req.session.user = {
-      user_id: user._id,
-      role: user.user_type
-    };
-    user.cookie = req.session.id;
-    await user.save();
-
-    res.status(200).json({ message: "Login successful", role: user.user_type });
+    // Set session data
+    req.session.userId = user._id;
+    req.session.role = user.user_type;
+    
+    // Save session before responding
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ message: "Error saving session" });
+      }
+      
+      console.log("Session saved:", req.session);
+      
+      res.status(200).json({ 
+        message: "Login successful", 
+        role: user.user_type,
+        sessionId: req.session.id
+      });
+    });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: err.message });
   }
 };

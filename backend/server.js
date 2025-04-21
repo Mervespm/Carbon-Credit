@@ -34,9 +34,9 @@ app.use(session({
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
     collectionName: "sessions",
+    ttl: 24 * 60 * 60 
   }),
 }));
-
 
 app.use("/api", authRoutes);
 app.use("/api/employer", employerRoutes);
