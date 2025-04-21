@@ -14,7 +14,7 @@ run().catch(console.dir);
 
 console.log(`ORIGIN: ${process.env.CLIENT_URL}`)
 app.use(cors({
-  origin: origin: ["http://localhost:5173", "https://carbon-credit-eight.vercel.app"],
+  origin:["http://localhost:5173", "https://carbon-credit-eight.vercel.app"],
   credentials: true,
   exposedHeaders: ['set-cookie', 'user_id']
 }));
