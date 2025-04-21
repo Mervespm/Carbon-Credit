@@ -76,8 +76,8 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: "Error saving session" });
       }
       
-      console.log("Session saved:", req.session);
-      
+      // console.log("Session saved:", req.session);
+      console.log(`Login Session ID: ${req.session.id}`)
       res.status(200).json({ 
         message: "Login successful", 
         role: user.user_type,

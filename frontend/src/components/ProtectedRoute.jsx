@@ -7,9 +7,13 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 
   useEffect(() => {
     const fetchSession = async () => {
+      // console.log(`Cookie: ${JSON.stringify(document.cookie)}`)
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
-          credentials: 'include'
+          method: "GET",
+          credentials: 'include', headers: {
+            Cookie: document.cookie
+          }
         });
 
         if (res.ok) {

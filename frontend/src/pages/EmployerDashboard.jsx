@@ -6,9 +6,13 @@ const EmployerDashboard = () => {
   const [employees, setEmployees] = useState([]);
   const [credits, setCredits] = useState(0);
   const [loading, setLoading] = useState(true);
-
+  // console.log(`Cookie: ${document.cookie}`)
+  
   const fetchData = async () => {
-    const res1 = await fetch(`${import.meta.env.VITE_API_URL}/me`, { credentials: 'include' });
+    const res1 = await fetch(`${import.meta.env.VITE_API_URL}/me`, { method: "GET", credentials: 'include', headers: {
+      Cookie: document.cookie,
+      "Content-Type": "application/json"
+    } });
     const data1 = await res1.json();
     setEmployer(data1);
 

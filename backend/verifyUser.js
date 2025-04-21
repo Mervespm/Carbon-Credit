@@ -3,7 +3,7 @@ import Account from "./model/account.model.js";
 
 const verifyUser = async (req, res, next) => {
   try {
-    console.log(`Session ID: ${req.session.id}`);
+    console.log(`Verify User session ID: ${req.session.id}`);
     if (!req.session.user || !req.session.user.user_id) {
       return res.status(401).json({ message: "Not logged in" });
     }

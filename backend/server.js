@@ -12,11 +12,11 @@ dotenv.config();
 const app = express();
 run().catch(console.dir);
 
-
+console.log(process.env.CLIENT_URL)
 app.use(cors({
   origin: process.env.CLIENT_URL, 
   credentials: true,
-  exposedHeaders: ['set-cookie']
+  exposedHeaders: ['set-cookie', 'user_id']
 }));
 app.use(express.json());
 
@@ -27,9 +27,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "none",      
-    secure: true 
+    // httpOnly: true,
+    // sameSite: "none",       
+    // secure: true 
   },
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
