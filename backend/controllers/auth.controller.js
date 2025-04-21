@@ -38,7 +38,6 @@ export const register = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -64,11 +63,13 @@ export const login = async (req, res) => {
       return res.status(403).json({ message: "Your account is not yet approved by your employer." });
     }
 
-    // Set session data
-    req.session.userId = user._id;
-    req.session.role = user.user_type;
+
+    req.session.user = {
+      user_id: user._id,
+      role: user.user_type
+    };
     
-    // Save session before responding
+
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
@@ -88,7 +89,6 @@ export const login = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 export const logout = (req, res) => {
   req.session.destroy((err) => {
