@@ -7,6 +7,7 @@ import run from "./mongoCommands.js";
 import authRoutes from "./routes/auth.routes.js";
 import employerRoutes from "./routes/employer.routes.js";
 import tripRoutes from "./routes/trip.routes.js";
+import transactionRoutes from "./routes/transaction.routes.js";
 
 dotenv.config();
 const app = express();
@@ -38,6 +39,7 @@ app.use(session({
 app.use("/api", authRoutes);
 app.use("/api/employer", employerRoutes);
 app.use("/api/trip", tripRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 
 app.get("/", (req, res) => {
