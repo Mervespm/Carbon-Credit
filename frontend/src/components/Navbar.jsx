@@ -1,3 +1,5 @@
+i have to update the page to see logout or welcome after logged in? How can i fix thta
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../assets/styles/navbar.css';
