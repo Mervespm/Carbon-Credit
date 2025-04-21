@@ -46,13 +46,21 @@ function Navbar() {
 
     switch (user.role.toLowerCase()) {
       case 'employee':
-        return '/dashboard/employee';
+        navigate('/dashboard/employee');
+        window.location.reload();
+        break;
       case 'bank':
-        return '/dashboard/bank';
+        navigate('/dashboard/bank');
+        window.location.reload();
+        break;
       case 'employer':
-        return '/dashboard/employer';
+        navigate('/dashboard/employer');
+        window.location.reload();
+        break;
       default:
-        return '/dashboard';
+        navigate('/dashboard');
+        window.location.reload();
+        break;
     }
   };
 
