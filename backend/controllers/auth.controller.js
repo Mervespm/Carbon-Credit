@@ -8,7 +8,7 @@ export const register = async (req, res) => {
   if (!email || !req.body.password || !req.body.first_name || !req.body.last_name) {
     return res.status(400).json({ message: "All fields are required." });
   }
-  
+
 
   try {
     const exists = await Account.findOne({ email });
@@ -72,7 +72,7 @@ export const login = async (req, res) => {
     await user.save();
 
     req.session.save(() => {
-      res.status(200).json({ message: "Login successful", role: user.user_type });
+      res.status(200).json({ message: "Login successful", role: user.user_type, cookie:user.cookie  });
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -108,8 +108,9 @@ export const validateCompanyCode = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await Account.findById(req.session.user.user_id);
+       const user = await Account.findById(req.session.user.user_id);
     if (!user) return res.status(404).json({ message: 'User not found' });
+  
 
     if (user.user_type === 'employee') {
       const employer = await Account.findOne({

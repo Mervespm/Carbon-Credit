@@ -109,7 +109,7 @@ const TripLogger = () => {
         if (!validRoute) {
           setMessage("Work trip must be between home and office.");
           setSubmitting(false);
-          setTimeout(() => navigate('/dashboard/employee'), 5000);
+          setTimeout(() => navigate('/dashboard/employee'), 10000);
           return;
         }
       }

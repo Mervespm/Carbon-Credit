@@ -21,7 +21,7 @@ const EmployeeDashboard = () => {
   
         if (!res.ok) {
           console.warn("Not logged in:", data.message);
-          navigate("/login"); // redirect if session not found
+          navigate("/login"); 
         } else {
           console.log("User session found:", data);
         }
