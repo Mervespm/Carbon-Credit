@@ -77,7 +77,7 @@ const TripLogger = () => {
 
     try {
       const location = await getLocation();
-      setStartLoc({ lat: 26.3795, lng: 0.0913 });
+      setStartLoc(location);
       const now = Date.now();
       setStartTime(now);
       setMessage("Trip started. Please continue your journey and click 'End Trip' when done.");

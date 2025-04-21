@@ -18,7 +18,6 @@ app.use(cors({
 
 app.use(express.json());
 
-
 app.use("/api", authRoutes);
 app.use("/api/employer", employerRoutes);
 app.use("/api/trip", tripRoutes);
