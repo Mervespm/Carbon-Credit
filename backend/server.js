@@ -12,39 +12,36 @@ dotenv.config();
 const app = express();
 run().catch(console.dir);
 
-console.log(`ORIGIN: ${process.env.CLIENT_URL}`)
 app.use(cors({
-  origin:["http://localhost:5173", "https://carbon-credit-eight.vercel.app"],
-  credentials: true,
-  exposedHeaders: ['set-cookie', 'user_id']
+  origin: ["http://localhost:5173", "https://carbon-credit-eight.vercel.app"],
+  credentials: true
 }));
-app.use(express.json());
 
+app.use(express.json());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000,  // 1 day
     httpOnly: true,
-    sameSite:'none',       
-    secure: true 
+    sameSite: "none",            
+    secure: true                 
   },
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    collectionName: "sessions",
-    ttl: 24 * 60 * 60 
+    collectionName: "sessions"
   }),
 }));
+
 
 app.use("/api", authRoutes);
 app.use("/api/employer", employerRoutes);
 app.use("/api/trip", tripRoutes);
 
-
 app.get("/", (req, res) => {
-  res.json("Get request test successful");
+  res.json("Server is running 🚀");
 });
 
 app.listen(8080, () => {
