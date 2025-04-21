@@ -16,12 +16,14 @@ function Login() {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        body: JSON.stringify({ email, password })
       });
 
       const data = await res.json();
-      console.log("Login response:", data);
+
+      console.log("✅ Login response:", data);
+      localStorage.setItem("token", data.token);
+      console.log("🧠 Token saved:", localStorage.getItem("token"));
 
       if (!res.ok) {
         setError(data.message || 'Invalid credentials.');
@@ -38,6 +40,10 @@ function Login() {
         return;
       }
 
+      // ✅ Save token to localStorage
+      localStorage.setItem("token", data.token);
+
+      // ✅ Redirect by role
       switch (data.role) {
         case 'employee': navigate('/dashboard/employee'); break;
         case 'employer': navigate('/dashboard/employer'); break;

@@ -1,7 +1,6 @@
 import Trip from '../model/trip.model.js';
 import Account from '../model/account.model.js';
 
-
 const haversineDistance = (loc1, loc2) => {
   const toRad = (deg) => deg * (Math.PI / 180);
   const R = 3958.8; // miles
@@ -33,20 +32,15 @@ export const logTrip = async (req, res) => {
       month
     } = req.body;
 
-    const userId = req.session.user.user_id;
+    const userId = req.user.user_id;
 
     const user = await Account.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const distance = haversineDistance(startLocation, endLocation);
-    const multipliers = {
-      bus: 3,
-      carpool: 2,
-      remote: 20
-    };
+    const multipliers = { bus: 3, carpool: 2, remote: 20 };
 
     let creditsEarned = 0;
-
     if (transportationType === "remote") {
       creditsEarned = multipliers.remote;
     } else if (["bus", "carpool"].includes(transportationType)) {
@@ -73,12 +67,9 @@ export const logTrip = async (req, res) => {
   }
 };
 
-
-
-
 export const getMyTrips = async (req, res) => {
   try {
-    const trips = await Trip.find({ userId: req.user.id }).sort({ createdAt: -1 });
+    const trips = await Trip.find({ userId: req.user.user_id }).sort({ createdAt: -1 });
     const totalCredits = trips.reduce((sum, t) => sum + (t.creditsEarned || 0), 0);
     res.status(200).json({ trips, totalCredits });
   } catch (err) {
@@ -86,15 +77,17 @@ export const getMyTrips = async (req, res) => {
   }
 };
 
-
 export const getEmployerEmployeeCredits = async (req, res) => {
   try {
-    const employer = await Account.findById(req.session.user.user_id);
+    const employer = await Account.findById(req.user.user_id);
     if (!employer || employer.user_type !== "employer") {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const employees = await Account.find({ company_code: employer.company_code, user_type: "employee" });
+    const employees = await Account.find({
+      company_code: employer.company_code,
+      user_type: "employee"
+    });
 
     const results = [];
 

@@ -10,7 +10,6 @@ import BankDashboard from './pages/BankDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import EmployerDashboard from './pages/EmployerDashboard';
 
-
 function App() {
   return (
     <Router>
@@ -20,6 +19,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register/employee" element={<RegisterEmployee />} />
           <Route path="register/employer" element={<RegisterEmployer />} />
+
           <Route path="trip" element={
             <ProtectedRoute>
               <TripLogger />
@@ -37,12 +37,15 @@ function App() {
               <BankDashboard />
             </ProtectedRoute>
           } />
+
           <Route path="dashboard/employer" element={
             <ProtectedRoute requiredRole="employer">
               <EmployerDashboard />
             </ProtectedRoute>
           } />
 
+          {/* 404 fallback */}
+          <Route path="*" element={<p className="text-center mt-5">Page not found</p>} />
         </Route>
       </Routes>
     </Router>

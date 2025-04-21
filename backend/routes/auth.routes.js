@@ -6,7 +6,8 @@ import {
   validateCompanyCode,
   getProfile
 } from "../controllers/auth.controller.js";
-import { verifyUser } from "../verifyUser.js";
+import verifyToken from "../verifyToken.js";
+
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", logout);
 router.post("/validate-company-code", validateCompanyCode);
-router.get("/me", verifyUser, getProfile);
+router.get("/me", verifyToken, getProfile);
+
 
 export default router;

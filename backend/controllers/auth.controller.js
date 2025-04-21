@@ -1,14 +1,13 @@
 import Account from "../model/account.model.js";
+import jwt from "jsonwebtoken";
 
 const generateCompanyCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
 export const register = async (req, res) => {
-  
   const { email, user_type, company_code } = req.body;
   if (!email || !req.body.password || !req.body.first_name || !req.body.last_name) {
     return res.status(400).json({ message: "All fields are required." });
   }
-  
 
   try {
     const exists = await Account.findOne({ email });
@@ -38,17 +37,15 @@ export const register = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await Account.findOne({ email, password });
 
-    if (!user) {
-      return res.status(404).json({ message: "Invalid credentials." });
-    }
+    if (!user) return res.status(404).json({ message: "Invalid credentials." });
 
-    // Employer check approvalStatus
     if (user.user_type === "employer") {
       if (user.approvalStatus === "pending") {
         return res.status(403).json({ message: "Your account is awaiting approval." });
@@ -58,44 +55,27 @@ export const login = async (req, res) => {
       }
     }
 
-    // Employee must be approved by employer
     if (user.user_type === "employee" && !user.isApproved) {
       return res.status(403).json({ message: "Your account is not yet approved by your employer." });
     }
 
-
-    req.session.user = {
+    const payload = {
       user_id: user._id,
       role: user.user_type
     };
-    
 
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        return res.status(500).json({ message: "Error saving session" });
-      }
-      
-      // console.log("Session saved:", req.session);
-      console.log(`Login Session ID: ${req.session.id}`)
-      res.status(200).json({ 
-        message: "Login successful", 
-        role: user.user_type,
-        sessionId: req.session.id
-      });
-    });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.status(200).json({ message: "Login successful", role: user.user_type, token });
+
   } catch (err) {
-    console.error("Login error:", err);
     res.status(500).json({ message: err.message });
   }
 };
 
 export const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) return res.status(500).json({ message: "Failed to log out" });
-    res.clearCookie("connect.sid");
-    res.status(200).json({ message: "Logged out" });
-  });
+  // Not needed for JWT, but keeping endpoint for UI consistency
+  res.status(200).json({ message: "Logged out (client should delete token)" });
 };
 
 export const validateCompanyCode = async (req, res) => {
@@ -118,9 +98,7 @@ export const validateCompanyCode = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-
-    const user = await Account.findById(req.session.user.user_id);
-    
+    const user = await Account.findById(req.user.user_id); // from verifyToken
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 

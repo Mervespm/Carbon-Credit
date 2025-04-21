@@ -67,8 +67,7 @@ const RegisterEmployer = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-        credentials: 'include'
+        body: JSON.stringify(form)
       });
   
       const data = await res.json();

@@ -35,8 +35,7 @@ const RegisterEmployee = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/validate-company-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_code: form.company_code }),
-        credentials: 'include'
+        body: JSON.stringify({ company_code: form.company_code })
       });
 
       const data = await res.json();

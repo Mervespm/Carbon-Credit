@@ -19,9 +19,13 @@ const TripLogger = () => {
 
   useEffect(() => {
     const fetchLocations = async () => {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
-        credentials: 'include'
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
+
       const data = await res.json();
       setHomeLocation(data.homeLocation);
       setOfficeLocation(data.officeLocation);
@@ -118,22 +122,26 @@ const TripLogger = () => {
         ? getCreditsPerMile('remote')
         : Math.round(miles * getCreditsPerMile(transportType));
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/log-trip`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          startLocation: startLoc,
-          endLocation: location,
-          transportationType: transportType,
-          startTime,
-          endTime: now,
-          durationMinutes: duration,
-          isWorkTrip,
-          month,
-          distance: miles
-        })
-      });
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/log-trip`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            startLocation: startLoc,
+            endLocation: location,
+            transportationType: transportType,
+            startTime,
+            endTime: now,
+            durationMinutes: duration,
+            isWorkTrip,
+            month,
+            distance: miles
+          })
+        });
+        
         
 
       const data = await res.json();

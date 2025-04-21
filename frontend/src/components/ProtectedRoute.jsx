@@ -7,12 +7,16 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 
   useEffect(() => {
     const fetchSession = async () => {
-      // console.log(`Cookie: ${JSON.stringify(document.cookie)}`)
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
-          method: "GET",
-          credentials: 'include', headers: {
-            Cookie: document.cookie
+          headers: {
+            Authorization: `Bearer ${token}`
           }
         });
 
@@ -20,6 +24,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
           const data = await res.json();
           setUser(data);
         } else {
+          localStorage.removeItem("token");
           setUser(null);
         }
       } catch {

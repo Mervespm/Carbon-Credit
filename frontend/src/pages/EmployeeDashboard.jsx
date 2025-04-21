@@ -12,10 +12,13 @@ const EmployeeDashboard = () => {
 
   useEffect(() => {
     const fetchTrips = async () => {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/my-trips`, {
-
-        credentials: 'include'
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
+
       const data = await res.json();
       if (res.ok) {
         setTrips(data.trips);

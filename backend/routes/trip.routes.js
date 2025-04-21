@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyUser } from "../verifyUser.js";
+import verifyToken from "../verifyToken.js";
 import {
   getMyTrips,
   getEmployerEmployeeCredits,
@@ -8,9 +8,8 @@ import {
 
 const router = express.Router();
 
-
-router.get("/my-trips", verifyUser, getMyTrips);
-router.get("/employer/credits", verifyUser, getEmployerEmployeeCredits);
-router.post("/log-trip", verifyUser, logTrip);
+router.get("/my-trips", verifyToken, getMyTrips);
+router.get("/employer/credits", verifyToken, getEmployerEmployeeCredits);
+router.post("/log-trip", verifyToken, logTrip);
 
 export default router;

@@ -7,9 +7,12 @@ const BankDashboard = () => {
 
   const fetchPendingEmployers = async () => {
     setLoading(true);
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/employer/pending`, {
-        credentials: 'include'
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       const data = await res.json();
       if (res.ok) {
@@ -25,11 +28,14 @@ const BankDashboard = () => {
   };
 
   const handleAction = async (id, approve = true) => {
+    const token = localStorage.getItem("token");
     const action = approve ? 'approve' : 'disapprove';
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/employer/${action}/${id}`, {
         method: 'PATCH',
-        credentials: 'include'
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       const data = await res.json();
       if (res.ok) {

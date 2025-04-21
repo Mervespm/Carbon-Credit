@@ -6,21 +6,31 @@ const EmployerDashboard = () => {
   const [employees, setEmployees] = useState([]);
   const [credits, setCredits] = useState(0);
   const [loading, setLoading] = useState(true);
-  // console.log(`Cookie: ${document.cookie}`)
-  
+
   const fetchData = async () => {
-    const res1 = await fetch(`${import.meta.env.VITE_API_URL}/me`, { method: "GET", credentials: 'include', headers: {
-      Cookie: document.cookie,
-      "Content-Type": "application/json"
-    } });
+    const token = localStorage.getItem("token");
+
+    const res1 = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     const data1 = await res1.json();
     setEmployer(data1);
 
-    const res2 = await fetch(`${import.meta.env.VITE_API_URL}/employer/employees`, { credentials: 'include' });
+    const res2 = await fetch(`${import.meta.env.VITE_API_URL}/employer/employees`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     const data2 = await res2.json();
     setEmployees(data2);
 
-    const res3 = await fetch(`${import.meta.env.VITE_API_URL}/trip/employer/credits`, { credentials: 'include' });
+    const res3 = await fetch(`${import.meta.env.VITE_API_URL}/trip/employer/credits`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     const data3 = await res3.json();
     setCredits(data3.totalCompanyCredits);
 
@@ -28,11 +38,16 @@ const EmployerDashboard = () => {
   };
 
   const toggleApproval = async (id, approve = true) => {
+    const token = localStorage.getItem("token");
     const route = approve ? 'approve' : 'disapprove';
+
     await fetch(`${import.meta.env.VITE_API_URL}/employer/employees/${route}/${id}`, {
       method: 'PATCH',
-      credentials: 'include'
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
+
     fetchData();
   };
 

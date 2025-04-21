@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useLocation } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../assets/styles/navbar.css';
 
@@ -8,34 +8,40 @@ function Navbar() {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
-          credentials: 'include'
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
+
         if (res.ok) {
           const data = await res.json();
           setUser(data);
+        } else {
+          localStorage.removeItem("token");
+          setUser(null);
         }
       } catch {
         setUser(null);
       }
     };
+
     fetchUser();
   }, []);
 
-  const handleLogout = async () => {
-    await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
-      method: 'POST',
-      credentials: 'include'
-    });
+  const handleLogout = () => {
+    localStorage.removeItem("token");
     setUser(null);
     navigate('/login');
   };
 
-  // Get dashboard link based on user role
   const getDashboardLink = () => {
     if (!user || !user.role) return '/dashboard';
-    
+
     switch (user.role.toLowerCase()) {
       case 'employee':
         return '/dashboard/employee';
