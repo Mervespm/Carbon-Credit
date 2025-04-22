@@ -15,10 +15,13 @@ const EmployeeDashboard = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, { credentials: 'include' });
-        const data = await res.json();
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
         if (!res.ok) navigate("/login");
-      } catch (err) {
+      } catch {
         navigate("/login");
       }
     };
@@ -27,7 +30,11 @@ const EmployeeDashboard = () => {
 
   useEffect(() => {
     const fetchTrips = async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/my-trips`, { credentials: 'include' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/my-trips`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       const data = await res.json();
       if (res.ok) {
         setTrips(data.trips);
@@ -39,7 +46,11 @@ const EmployeeDashboard = () => {
 
   useEffect(() => {
     const fetchSummary = async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/monthly-summary`, { credentials: 'include' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/monthly-summary`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       const data = await res.json();
       if (res.ok) setSummary(data);
     };
@@ -48,7 +59,11 @@ const EmployeeDashboard = () => {
 
   useEffect(() => {
     const fetchLifetime = async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/total-summary`, { credentials: 'include' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/trip/total-summary`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       const data = await res.json();
       if (res.ok) setLifetime(data);
     };
