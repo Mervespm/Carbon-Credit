@@ -1,14 +1,12 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { AuthContext } from '../context/AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 const MyAccount = () => {
   const [form, setForm] = useState({ first_name: '', last_name: '', homeLocation: null });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -84,7 +82,7 @@ const MyAccount = () => {
       const data = await res.json();
       if (res.ok) {
         toast.success('Account deleted');
-        logout(); // from context
+        localStorage.removeItem("token");
         setTimeout(() => navigate('/login'), 2000);
       } else toast.error(data.message);
     } catch {
