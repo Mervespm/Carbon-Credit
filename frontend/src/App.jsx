@@ -9,6 +9,8 @@ import TripLogger from './pages/TripLogger';
 import BankDashboard from './pages/BankDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import EmployerDashboard from './pages/EmployerDashboard';
+import MyAccount from './pages/MyAccount'; // or wherever you placed it
+
 
 function App() {
   return (
@@ -43,6 +45,13 @@ function App() {
               <EmployerDashboard />
             </ProtectedRoute>
           } />
+
+          <Route path="my-account" element={
+            <ProtectedRoute>
+              <MyAccount />
+            </ProtectedRoute>
+          } />
+
 
           {/* 404 fallback */}
           <Route path="*" element={<p className="text-center mt-5">Page not found</p>} />

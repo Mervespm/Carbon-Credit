@@ -59,7 +59,7 @@ function Navbar() {
   return (
     <div className="topnav">
       <Link to="/" className="logo">CarbonCreditBank</Link>
-
+  
       {!user ? (
         <>
           <Link to="/">Home</Link>
@@ -68,12 +68,14 @@ function Navbar() {
       ) : (
         <>
           <Link to={getDashboardLink()}>Dashboard</Link>
+          <Link to="/my-account">My Account</Link>
           <span className="welcome">Hello, {user.first_name}</span>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </>
       )}
     </div>
   );
+  
 }
 
 export default Navbar;
