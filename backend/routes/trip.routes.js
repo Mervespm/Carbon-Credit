@@ -3,7 +3,8 @@ import verifyToken from "../verifyToken.js";
 import {
   getMyTrips,
   getEmployerEmployeeCredits,
-  logTrip
+  logTrip,
+  getTotalSummary
 } from "../controllers/trip.controller.js";
 
 const router = express.Router();
