@@ -33,14 +33,23 @@ const TripLogger = () => {
     fetchLocations();
   }, []);
 
+  
+  
   const handleDemoTrip = async () => {
+    if (!transportType) {
+      setMessage("Please select a transportation method before running the demo trip.");
+      return;
+    }
+  
     const now = Date.now();
     const fakeStart = { lat: 26.3795, lng: -80.1010 };
     const fakeEnd = { lat: 26.3700, lng: -80.1200 };
   
-    const distance = calculateDistanceMiles(fakeStart, fakeEnd);
+    const miles = calculateDistanceMiles(fakeStart, fakeEnd);
     const duration = 10;
-    const creditsEarned = Math.round(distance * getCreditsPerMile('carpool'));
+    const creditsEarned = transportType === 'remote'
+      ? getCreditsPerMile('remote')
+      : Math.round(miles * getCreditsPerMile(transportType));
   
     const token = localStorage.getItem("token");
   
@@ -53,23 +62,26 @@ const TripLogger = () => {
       body: JSON.stringify({
         startLocation: fakeStart,
         endLocation: fakeEnd,
-        transportationType: 'carpool',
+        transportationType: transportType,
         startTime: now - 10 * 60000,
         endTime: now,
         durationMinutes: duration,
         isWorkTrip: false,
         month: new Date(now).toISOString().slice(0, 7),
-        distance
+        distance: miles
       })
     });
   
     const data = await res.json();
   
     if (res.ok) {
+      setStartLoc(fakeStart);
+      setEndLoc(fakeEnd);
+      setDistance(miles.toFixed(2));
       setCredits(data.trip.creditsEarned);
-      setMessage(`Demo trip logged. You earned ${data.trip.creditsEarned} credits.`);
+      setMessage(`✅ Demo trip logged. You earned ${data.trip.creditsEarned} credits.`);
     } else {
-      setMessage(data.message || "Failed to log demo trip.");
+      setMessage(data.message || "❌ Failed to log demo trip.");
     }
   };
   
@@ -232,7 +244,7 @@ const TripLogger = () => {
         <button className="btn btn-outline-primary w-100 ml-2" onClick={handleEndTrip} disabled={!startTime || submitting || credits !== null}>
           End Trip
         </button>
-        <button className="btn btn-warning w-100 mt-2" onClick={handleDemoTrip}>
+        <button className="btn btn-warning w-100 mt-2" onClick={handleDemoTrip} disabled={!transportType} >
         Run Demo Trip
       </button>
 
