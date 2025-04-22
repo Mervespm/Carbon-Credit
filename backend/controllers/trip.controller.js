@@ -108,3 +108,26 @@ export const getEmployerEmployeeCredits = async (req, res) => {
     res.status(500).json({ message: "Failed to load employee credits" });
   }
 };
+export const getTotalSummary = async (req, res) => {
+  try {
+    const userId = req.session.user.user_id;
+
+    const trips = await Trip.find({ userId });
+
+    let workMiles = 0;
+    let otherMiles = 0;
+
+    for (const trip of trips) {
+      if (trip.isWorkTrip) workMiles += trip.distance || 0;
+      else otherMiles += trip.distance || 0;
+    }
+
+    res.status(200).json({
+      workMiles: workMiles.toFixed(2),
+      otherMiles: otherMiles.toFixed(2),
+      totalMiles: (workMiles + otherMiles).toFixed(2)
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to get summary" });
+  }
+};
